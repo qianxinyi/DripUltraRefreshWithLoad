@@ -1,6 +1,7 @@
 ###### Welcome to follow me on GitHub or Twitter
 
-
+以下封装好的上拉下拉加载框架：添加gradle依赖方式
+***********************************************************************************************
 	allprojects {
 		repositories {
 			...
@@ -12,13 +13,7 @@
 	        compile 'com.github.qianxinyi:android-Ultra-Pull-To-Refresh-Load:v1.0'
 	}
 
-
-
-
-
-
-
-
+************************************************************************************************
 
 
 GitHub: https://github.com/liaohuqiu
