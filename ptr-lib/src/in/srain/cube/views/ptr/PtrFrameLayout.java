@@ -20,7 +20,7 @@ import in.srain.cube.views.ptr.util.PtrCLog;
  */
 public class PtrFrameLayout extends ViewGroup {
 
-    // status enum
+    // status enum are you kkding ms3
     public final static byte PTR_STATUS_INIT = 1;
     private byte mStatus = PTR_STATUS_INIT;
     public final static byte PTR_STATUS_PREPARE = 2;
