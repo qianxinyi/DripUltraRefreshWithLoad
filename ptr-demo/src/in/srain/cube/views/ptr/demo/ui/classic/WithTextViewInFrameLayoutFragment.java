@@ -40,7 +40,7 @@ public class WithTextViewInFrameLayoutFragment extends TitleBaseFragment {
 
         // the following are default settings
         ptrFrame.setResistance(1.7f);
-        ptrFrame.setRatioOfHeaderHeightToRefresh(1.2f);
+        ptrFrame.setRatioOfHeight(1.2f);
         ptrFrame.setDurationToClose(200);
         ptrFrame.setDurationToCloseHeader(1000);
         // default is false

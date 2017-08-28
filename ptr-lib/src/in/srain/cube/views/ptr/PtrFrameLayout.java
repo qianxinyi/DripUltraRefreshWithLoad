@@ -91,9 +91,6 @@ public class PtrFrameLayout extends ViewGroup {
         }
     };
 
-    private int mScreenHeight;
-    private int mScreenWidth;
-
     public PtrFrameLayout(Context context) {
         this(context, null);
     }
@@ -108,9 +105,7 @@ public class PtrFrameLayout extends ViewGroup {
     }
 
     private void initView(Context context,AttributeSet attrs){
-        getScreenHeightAndWidth();
         mPtrIndicator = new PtrIndicator();
-        mPtrIndicator.setPosEnd(mScreenHeight);
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.PtrFrameLayout, 0, 0);
         if (arr != null) {
             mHeaderId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_header, mHeaderId);
@@ -119,9 +114,9 @@ public class PtrFrameLayout extends ViewGroup {
             mPtrIndicator.setResistance(arr.getFloat(R.styleable.PtrFrameLayout_ptr_resistance, mPtrIndicator.getResistance()));
             mDurationToClose = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close, mDurationToClose);
             mDurationToCloseHeader = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close_header, mDurationToCloseHeader);
-            float ratio = mPtrIndicator.getRatioOfHeaderToHeightRefresh();
+            float ratio = mPtrIndicator.getRatio();
             ratio = arr.getFloat(R.styleable.PtrFrameLayout_ptr_ratio_of_header_height_to_refresh, ratio);
-            mPtrIndicator.setRatioOfHeaderHeightToRefresh(ratio);
+            mPtrIndicator.setRatioOfHeight(ratio);
             mKeepHeaderWhenRefresh = arr.getBoolean(R.styleable.PtrFrameLayout_ptr_keep_header_when_refresh, mKeepHeaderWhenRefresh);
             mPullToRefresh = arr.getBoolean(R.styleable.PtrFrameLayout_ptr_pull_to_fresh, mPullToRefresh);
             arr.recycle();
@@ -132,12 +127,6 @@ public class PtrFrameLayout extends ViewGroup {
         mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
 
     }
-    private void getScreenHeightAndWidth() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScreenWidth = dm.widthPixels;
-        mScreenHeight = dm.heightPixels;
-    }
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -199,7 +188,6 @@ public class PtrFrameLayout extends ViewGroup {
         if(mHeaderView==null)
             onFinishInflate();
     }
-
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -213,7 +201,6 @@ public class PtrFrameLayout extends ViewGroup {
         if (mPerformLoadCompleteDelay != null)
             removeCallbacks(mPerformLoadCompleteDelay);
     }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -321,7 +308,6 @@ public class PtrFrameLayout extends ViewGroup {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-
         if (!isEnabled() || mContent == null || mHeaderView == null) {
             return dispatchTouchEventSupper(e);
         }
@@ -379,15 +365,10 @@ public class PtrFrameLayout extends ViewGroup {
                 boolean moveDown=offsetY>0;
                 boolean moveUp=offsetY<0;
                 if(offsetY<0&&mPtrHandler2!=null){//上拉加载处理
-                    if(PtrIndicator.isPullHeader)
-                        return true;
+                    if(PtrIndicator.isPullHeader) return true;
                     PtrIndicator.isPullHeader=false;//分辨正在拉头部或者尾部
                     PtrIndicator.isPullFooter=true;
                     boolean canMoveDown = mPtrIndicator.hasLeftBottomPosition();
-                    if (DEBUG) {
-                        boolean canMoveUp = mPtrHandler2 != null && mPtrHandler2.checkCanDoLoad(this,mContent,mFooterView);
-                        PtrCLog.v(LOG_TAG, "ACTION_MOVE: offsetY:%s, currentPos: %s, moveUp: %s, canMoveUp: %s, moveDown: %s: canMoveDown: %s", offsetY, mPtrIndicator.getCurrentPosY(), moveUp, canMoveUp, moveDown, canMoveDown);
-                    }
                     // disable move when footer not reach bottom<检测尾部>
                     if (moveUp && mPtrHandler2!= null && !mPtrHandler2.checkCanDoLoad(this,mContent,mFooterView)) {
                         return dispatchTouchEventSupper(e);
@@ -397,7 +378,7 @@ public class PtrFrameLayout extends ViewGroup {
                         return true;
                     }
 
-                }else  if(offsetY>0&&mPtrHandler!=null){  //下拉刷新处理
+                }else if(offsetY>0&&mPtrHandler!=null){  //下拉刷新处理
                     if(PtrIndicator.isPullFooter)
                         return true;
                     PtrIndicator.isPullHeader=true;//分辨正在拉头部或者尾部
@@ -416,11 +397,10 @@ public class PtrFrameLayout extends ViewGroup {
                         movePos(offsetY);
                         return true;
                     }
-                   }
+                }
         }
         return dispatchTouchEventSupper(e);
     }
-
     /**
      * if deltaY < 0, move the content up
      * //关于FooterView ，HeaderView的处理
@@ -435,16 +415,13 @@ public class PtrFrameLayout extends ViewGroup {
             }
             return;
         }
-        //设置为End；
-        //mPtrIndicator.setCurrentPosY(PtrIndicator.POS_END);
-       // mPtrIndicator.setCurrentPos(PtrIndicator.POS_END);
-        int to = mPtrIndicator.getCurrentPosY() + (int) deltaY;
+        int to = mPtrIndicator.getCurrentPosY()+(int) deltaY;
         // over bottom
         if (mPtrIndicator.willOverBottom(to)) {
             if (DEBUG) {
                 PtrCLog.e(LOG_TAG, String.format("over bottom"));
             }
-            to = PtrIndicator.POS_END;
+            to = PtrIndicator.POS_START;
         }
         mPtrIndicator.setCurrentPos(to);
         int change = to - mPtrIndicator.getLastPosY();
@@ -795,7 +772,7 @@ public class PtrFrameLayout extends ViewGroup {
                 mStatus = PTR_STATUS_INIT;
                 clearFlag();
 
-            }else{ //if(mPtrIndicator.isInBottomPosition()) {//判断是否到底尾部《有毛病》
+            }else if(mPtrIndicator.isInBottomPosition()) {//判断是否到底尾部《有毛病》
                 if (mPtrUIHandlerHolder2.hasHandler()) {
                     mPtrUIHandlerHolder2.onUIReset(this);
                     if (DEBUG) {
@@ -1139,8 +1116,8 @@ public class PtrFrameLayout extends ViewGroup {
         mDurationToCloseHeader = duration;
     }
 
-    public void setRatioOfHeaderHeightToRefresh(float ratio) {
-        mPtrIndicator.setRatioOfHeaderHeightToRefresh(ratio);
+    public void setRatioOfHeight(float ratio) {
+        mPtrIndicator.setRatioOfHeight(ratio);
     }
 
     public int getOffsetToRefresh() {
@@ -1153,8 +1130,8 @@ public class PtrFrameLayout extends ViewGroup {
     }
 
     @SuppressWarnings({"unused"})
-    public float getRatioOfHeaderToHeightRefresh() {
-        return mPtrIndicator.getRatioOfHeaderToHeightRefresh();
+    public float getRatioOfHeight() {
+        return mPtrIndicator.getRatio();
     }
 
     @SuppressWarnings({"unused"})
@@ -1190,7 +1167,6 @@ public class PtrFrameLayout extends ViewGroup {
     public boolean isPullToRefresh() {
         return mPullToRefresh;
     }
-
     public void setPullToRefresh(boolean pullToRefresh) {
         mPullToRefresh = pullToRefresh;
     }
@@ -1199,7 +1175,6 @@ public class PtrFrameLayout extends ViewGroup {
     public View getHeaderView() {
         return mHeaderView;
     }
-
     public void setHeaderView(View header) {
         if (mHeaderView != null && header != null && mHeaderView != header) {
             removeView(mHeaderView);

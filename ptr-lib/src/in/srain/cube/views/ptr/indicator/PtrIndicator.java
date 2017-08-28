@@ -8,7 +8,6 @@ public class PtrIndicator {
     public static  boolean isPullFooter=false;
 
     public final static int POS_START = 0;
-    public  static int POS_END=0;//屏幕位置
     protected int mOffsetToRefresh = 0;
     protected int  mOffsetToLoad = 0;
     private PointF mPtLastMove = new PointF();
@@ -20,7 +19,7 @@ public class PtrIndicator {
     private int mFooterHeight;
     private int mPressedPos = 0;
 
-    private float mRatioOfHeaderHeightToRefresh = 1.2f;
+    private float mRatio= 1.2f;
     private float mResistance = 1.7f;
     private boolean mIsUnderTouch = false;
     private int mOffsetToKeepHeaderWhileLoading = -1;
@@ -28,9 +27,6 @@ public class PtrIndicator {
     // record the refresh complete position
     private int mRefreshCompleteY = 0;
 
-    public void setPosEnd(int mScreenHeight) {
-        POS_END = mScreenHeight;
-    }
     public boolean isUnderTouch() {
         return mIsUnderTouch;
     }
@@ -59,17 +55,13 @@ public class PtrIndicator {
         setOffset(offsetX, offsetY / mResistance);
     }
 
-    public void setRatioOfHeaderHeightToRefresh(float ratio) {
-        mRatioOfHeaderHeightToRefresh = ratio;
+    public void setRatioOfHeight(float ratio) {
+        mRatio = ratio;
         mOffsetToRefresh = (int) (mHeaderHeight * ratio);
+        mOffsetToLoad=(int)(mFooterHeight*ratio);
     }
-    public void setRatioOfFooterHeightToLoad(float ratio) {
-        mRatioOfHeaderHeightToRefresh = ratio;
-        mOffsetToLoad = (int) (mFooterHeight * ratio);
-    }
-
-    public float getRatioOfHeaderToHeightRefresh() {
-        return mRatioOfHeaderHeightToRefresh;
+    public float getRatio() {
+        return mRatio;
     }
 
     public int getOffsetToRefresh() {
@@ -80,11 +72,11 @@ public class PtrIndicator {
     }
 
     public void setOffsetToRefresh(int offset) {
-        mRatioOfHeaderHeightToRefresh = mHeaderHeight * 1f / offset;
+        mRatio = mHeaderHeight * 1f / offset;
         mOffsetToRefresh = offset;
     }
     public void setOffsetToLoad(int offset) {
-        mRatioOfHeaderHeightToRefresh = mFooterHeight * 1f / offset;
+        mRatio = mFooterHeight * 1f / offset;
         mOffsetToLoad = offset;
     }
 
@@ -148,7 +140,7 @@ public class PtrIndicator {
     }
 
     protected void updateHeaderHeight() {
-        mOffsetToRefresh = (int) (mRatioOfHeaderHeightToRefresh * mHeaderHeight);
+        mOffsetToRefresh = (int) (mRatio * mHeaderHeight);
     }
 
     public void setFooterHeight(int height) {
@@ -157,7 +149,7 @@ public class PtrIndicator {
     }
 
     protected void updateFooterHeight() {
-        mOffsetToLoad = (int) (mRatioOfHeaderHeightToRefresh * mFooterHeight);
+        mOffsetToLoad = (int) (mRatio * mFooterHeight);
     }
 
 
@@ -171,7 +163,7 @@ public class PtrIndicator {
         return mCurrentPos > POS_START;
     }
     public boolean hasLeftBottomPosition() {
-        return (mCurrentPos+mFooterHeight)<POS_END;
+        return mCurrentPos<POS_START;
     }
     public boolean hasJustLeftStartPosition() {
         return mLastPos == POS_START && hasLeftStartPosition();
@@ -179,19 +171,18 @@ public class PtrIndicator {
     public boolean hasJustLeftBottomPosition() {
         return mLastPos == POS_START && hasLeftBottomPosition();
     }
-
     public boolean hasJustBackToStartPosition() {
         return mLastPos != POS_START && isInStartPosition();
     }
     public boolean hasJustBackToBottomPosition() {
-        return mLastPos != POS_END && isInBottomPosition();
+        return mLastPos != POS_START && isInBottomPosition();
     }
 
     public boolean isOverOffsetToRefresh() {
         return mCurrentPos >= getOffsetToRefresh();
     }
     public boolean isOverOffsetToLoad() {
-        return mCurrentPos <= POS_END-getOffsetToLoad();//计算保持量展示代替
+        return -mCurrentPos >=getOffsetToLoad();//计算保持量展示代替
     }
 
     public boolean hasMovedAfterPressedDown() {
@@ -202,7 +193,7 @@ public class PtrIndicator {
         return mCurrentPos == POS_START;
     }
     public boolean isInBottomPosition() {
-        return mCurrentPos == POS_END;
+        return mCurrentPos == POS_START;
     }
 
     public boolean crossRefreshLineFromTopToBottom() {
@@ -221,7 +212,7 @@ public class PtrIndicator {
         return mCurrentPos > getOffsetToKeepHeaderWhileLoading();
     }
     public boolean isOverOffsetToKeepFooterWhileLoading() {
-        return mCurrentPos<POS_END-getOffsetToKeepFooterWhileLoading();
+        return (-mCurrentPos)>getOffsetToKeepFooterWhileLoading();
     }
 
     public void setOffsetToKeepHeaderWhileLoading(int offset) {
@@ -258,6 +249,6 @@ public class PtrIndicator {
         return to < POS_START;
     }
     public boolean willOverBottom(int to) {
-        return to > POS_END;
+        return to > POS_START;
     }
 }

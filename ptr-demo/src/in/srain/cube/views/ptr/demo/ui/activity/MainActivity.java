@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
         });
         // the following are default settings
         mPtrFrame.setResistance(1.7f);
-        mPtrFrame.setRatioOfHeaderHeightToRefresh(1.2f);
+        mPtrFrame.setRatioOfHeight(1.2f);
         mPtrFrame.setDurationToClose(200);
         mPtrFrame.setDurationToCloseHeader(1000);
         // default is false
