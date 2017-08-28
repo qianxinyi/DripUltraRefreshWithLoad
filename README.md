@@ -1,5 +1,26 @@
 ###### Welcome to follow me on GitHub or Twitter
 
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+    
+    	dependencies {
+	        compile 'com.github.qianxinyi:android-Ultra-Pull-To-Refresh-Load:v1.0'
+	}
+
+
+
+
+
+
+
+
+
+
 GitHub: https://github.com/liaohuqiu
 
 Twitter: https://twitter.com/liaohuqiu
