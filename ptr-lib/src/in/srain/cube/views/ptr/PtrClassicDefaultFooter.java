@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
-
+//wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIHandler2 {
     private TextView footerTitle;
     private ProgressBar footerProgressBar;

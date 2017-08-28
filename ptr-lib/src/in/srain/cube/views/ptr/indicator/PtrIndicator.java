@@ -28,14 +28,9 @@ public class PtrIndicator {
     // record the refresh complete position
     private int mRefreshCompleteY = 0;
 
-    public PtrIndicator(){
-
+    public void setPosEnd(int mScreenHeight) {
+        POS_END = mScreenHeight;
     }
-
-    public PtrIndicator(int end){
-        POS_END=end;
-    }
-
     public boolean isUnderTouch() {
         return mIsUnderTouch;
     }

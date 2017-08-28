@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.*;
 import android.webkit.WebView;
 import android.widget.AbsListView;
@@ -83,13 +84,15 @@ public class PtrFrameLayout extends ViewGroup {
             performRefreshComplete();
         }
     };
-
     private Runnable mPerformLoadCompleteDelay = new Runnable() {
         @Override
         public void run() {
             performLoadComplete();
         }
     };
+
+    private int mScreenHeight;
+    private int mScreenWidth;
 
     public PtrFrameLayout(Context context) {
         this(context, null);
@@ -101,19 +104,19 @@ public class PtrFrameLayout extends ViewGroup {
 
     public PtrFrameLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        initView(context,attrs);
+    }
 
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        int width = wm.getDefaultDisplay().getWidth();
-        int height = wm.getDefaultDisplay().getHeight();
-        mPtrIndicator = new PtrIndicator(height);
-
+    private void initView(Context context,AttributeSet attrs){
+        getScreenHeightAndWidth();
+        mPtrIndicator = new PtrIndicator();
+        mPtrIndicator.setPosEnd(mScreenHeight);
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.PtrFrameLayout, 0, 0);
         if (arr != null) {
             mHeaderId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_header, mHeaderId);
             mContainerId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_content, mContainerId);
             mFooterId=arr.getResourceId(R.styleable.PtrFrameLayout_ptr_footer,mFooterId);
-            mPtrIndicator.setResistance(
-                    arr.getFloat(R.styleable.PtrFrameLayout_ptr_resistance, mPtrIndicator.getResistance()));
+            mPtrIndicator.setResistance(arr.getFloat(R.styleable.PtrFrameLayout_ptr_resistance, mPtrIndicator.getResistance()));
             mDurationToClose = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close, mDurationToClose);
             mDurationToCloseHeader = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close_header, mDurationToCloseHeader);
             float ratio = mPtrIndicator.getRatioOfHeaderToHeightRefresh();
@@ -123,9 +126,16 @@ public class PtrFrameLayout extends ViewGroup {
             mPullToRefresh = arr.getBoolean(R.styleable.PtrFrameLayout_ptr_pull_to_fresh, mPullToRefresh);
             arr.recycle();
         }
+
         mScrollChecker = new ScrollChecker();
         final ViewConfiguration conf = ViewConfiguration.get(getContext());
         mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
+
+    }
+    private void getScreenHeightAndWidth() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        mScreenWidth = dm.widthPixels;
+        mScreenHeight = dm.heightPixels;
     }
 
     @Override
@@ -324,10 +334,6 @@ public class PtrFrameLayout extends ViewGroup {
             case MotionEvent.ACTION_CANCEL:
                 mPtrIndicator.onRelease();
                 if (mPtrIndicator.hasLeftStartPosition()&&PtrIndicator.isPullHeader) {//处理下拉刷新
-
-                    if (DEBUG) {
-                        PtrCLog.d(LOG_TAG, "call onRelease when user release");
-                    }
                     onRelease(false);
                     if (mPtrIndicator.hasMovedAfterPressedDown()) {
                         sendCancelEvent();
@@ -335,7 +341,6 @@ public class PtrFrameLayout extends ViewGroup {
                     }
                     return dispatchTouchEventSupper(e);
                 } else if(mPtrIndicator.hasLeftBottomPosition()&&PtrIndicator.isPullFooter) {//处理上拉加载
-
                     onRelease2(false);//上拉加载
                     if (mPtrIndicator.hasMovedAfterPressedDown()) {
                         sendCancelEvent();
@@ -599,9 +604,7 @@ public class PtrFrameLayout extends ViewGroup {
     }
 
     private void onRelease(boolean stayForLoading) {
-
         tryToPerformRefresh();
-
         if (mStatus == PTR_STATUS_LOADING) {
             // keep header for fresh
             if (mKeepHeaderWhenRefresh) {
@@ -622,11 +625,8 @@ public class PtrFrameLayout extends ViewGroup {
             }
         }
     }
-
     private void onRelease2(boolean stayForLoading) {
-
         tryToPerformLoad();//回调类接口
-
         if (mStatus == PTR_STATUS_LOADING) {
             // keep footer for fresh
             if (mKeepFooterWhenRefresh) {//?????// TODO: 2017/8/25
@@ -665,7 +665,6 @@ public class PtrFrameLayout extends ViewGroup {
             }
         });
     }
-
     public void setLoadCompleteHook(PtrUIHandlerHook hook) {
         mLoadCompleteHook = hook;
         hook.setResumeAction(new Runnable() {
@@ -693,7 +692,6 @@ public class PtrFrameLayout extends ViewGroup {
             mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader,true);
         }
     }
-
 
     /**
      * just make easier to understand
@@ -757,7 +755,6 @@ public class PtrFrameLayout extends ViewGroup {
         return false;
     }
 
-
     private void performRefresh() {
         mLoadingStartTime = System.currentTimeMillis();
         if (mPtrUIHandlerHolder.hasHandler()) {
@@ -770,7 +767,6 @@ public class PtrFrameLayout extends ViewGroup {
             mPtrHandler.onRefreshBegin(this);
         }
     }
-
     private void performLoad() {
         mLoadingStartTime = System.currentTimeMillis();
         if (mPtrUIHandlerHolder2.hasHandler()) {
@@ -825,7 +821,6 @@ public class PtrFrameLayout extends ViewGroup {
 
 
     }
-
     protected void onPtrScrollFinish() {
         if (mPtrIndicator.hasLeftStartPosition() && isAutoRefresh()) {
             if (DEBUG) {
@@ -870,7 +865,6 @@ public class PtrFrameLayout extends ViewGroup {
             }
         }
     }
-
     final public void loadComplete() {
         if (DEBUG) {
             PtrCLog.i(LOG_TAG, "refreshComplete");
@@ -979,7 +973,6 @@ public class PtrFrameLayout extends ViewGroup {
     public void autoRefresh() {
         autoRefresh(true, mDurationToCloseHeader);
     }
-
     public void autoRefresh(boolean atOnce) {
         autoRefresh(atOnce, mDurationToCloseHeader);
     }
@@ -1173,7 +1166,7 @@ public class PtrFrameLayout extends ViewGroup {
     public void setOffsetToKeepHeaderWhileLoading(int offset) {
         mPtrIndicator.setOffsetToKeepHeaderWhileLoading(offset);
     }
-
+    @SuppressWarnings({"unused"})
     public void setOffsetToKeepFooterWhileLoading(int offset) {
         mPtrIndicator.setOffsetToKeepFooterWhileLoading(offset);
     }
@@ -1182,7 +1175,7 @@ public class PtrFrameLayout extends ViewGroup {
     public boolean isKeepHeaderWhenRefresh() {
         return mKeepHeaderWhenRefresh;
     }
-
+    @SuppressWarnings({"unused"})
     public boolean isKeepFooterWhenLoad() {
         return mKeepFooterWhenRefresh;
     }
@@ -1265,7 +1258,6 @@ public class PtrFrameLayout extends ViewGroup {
         MotionEvent e = MotionEvent.obtain(last.getDownTime(), last.getEventTime() + ViewConfiguration.getLongPressTimeout(), MotionEvent.ACTION_CANCEL, last.getX(), last.getY(), last.getMetaState());
         dispatchTouchEventSupper(e);
     }
-
     private void sendDownEvent() {
         if (DEBUG) {
             PtrCLog.d(LOG_TAG, "send down event");
@@ -1294,7 +1286,6 @@ public class PtrFrameLayout extends ViewGroup {
             super(source);
         }
     }
-
     class ScrollChecker implements Runnable {
 
         private int mLastFlingY;
@@ -1388,7 +1379,6 @@ public class PtrFrameLayout extends ViewGroup {
             post(this);
             mIsRunning = true;
         }
-
         public void tryToScrollTo(int to, int duration,boolean isPullToLoad) {
             this.isPullToLoad=isPullToLoad;//判断上拉与否
             if (mPtrIndicator.isAlreadyHere(to)) {

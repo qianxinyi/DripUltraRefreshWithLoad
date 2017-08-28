@@ -12,12 +12,6 @@ public class PtrTensionIndicator extends PtrIndicator {
     private int mReleasePos;
     private float mReleasePercent = -1;
 
-    public PtrTensionIndicator(){
-
-    }
-
-
-
     @Override
     public void onPressDown(float x, float y) {
         super.onPressDown(x, y);
