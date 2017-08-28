@@ -6,11 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.PtrHandler2;
 import in.srain.cube.views.ptr.demo.R;
 
 public class WithWebView extends TitleBaseFragment {
@@ -42,6 +45,26 @@ public class WithWebView extends TitleBaseFragment {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
                 updateData();
+            }
+        });
+
+        mPtrFrame.setPtrHandler2(new PtrHandler2() {
+            @Override
+            public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
+                return PtrDefaultHandler.checkContentCanBePulledUp(frame,mWebView,footer);
+            }
+
+            @Override
+            public void onLoadBegin(PtrFrameLayout frame) {
+                Toast.makeText(getActivity(),"我是footer！！",Toast.LENGTH_SHORT).show();
+
+                mPtrFrame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPtrFrame.loadComplete();
+
+                    }
+                },0);
             }
         });
         // the following are default settings

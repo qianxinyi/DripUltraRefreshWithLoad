@@ -20,7 +20,7 @@ import in.srain.cube.views.ptr.util.PtrCLog;
  */
 public class PtrFrameLayout extends ViewGroup {
 
-    // status enum are you kkding ms3
+    // status
     public final static byte PTR_STATUS_INIT = 1;
     private byte mStatus = PTR_STATUS_INIT;
     public final static byte PTR_STATUS_PREPARE = 2;
@@ -47,10 +47,6 @@ public class PtrFrameLayout extends ViewGroup {
     private boolean mKeepHeaderWhenRefresh = true;
     private boolean mKeepFooterWhenRefresh=true;
     private boolean mPullToRefresh = false;
-
-//
-//    private boolean enablePullToRefresh=false;
-//    private boolean enablePullToLoad=false;
 
     private View mHeaderView;
     protected View mContent;
@@ -127,7 +123,6 @@ public class PtrFrameLayout extends ViewGroup {
             mPullToRefresh = arr.getBoolean(R.styleable.PtrFrameLayout_ptr_pull_to_fresh, mPullToRefresh);
             arr.recycle();
         }
-
         mScrollChecker = new ScrollChecker();
         final ViewConfiguration conf = ViewConfiguration.get(getContext());
         mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
@@ -150,7 +145,7 @@ public class PtrFrameLayout extends ViewGroup {
             } else if (view instanceof PtrUIHandler2 && mFooterView == null) {
                 mFooterView = view;
             } else if (mContent == null && (
-                    view instanceof AbsListView
+                               view instanceof AbsListView
                             || view instanceof ScrollView
                             || view instanceof WebView)) {
                 mContent = view;
@@ -392,7 +387,7 @@ public class PtrFrameLayout extends ViewGroup {
                     if (moveUp && mPtrHandler2!= null && !mPtrHandler2.checkCanDoLoad(this,mContent,mFooterView)) {
                         return dispatchTouchEventSupper(e);
                     }
-                    if ((moveDown && canMoveDown) || moveUp) {
+                    if ((moveDown && canMoveDown) || moveUp) {//// TODO: 2017/8/28 进行代码修改整理
                         movePos2(offsetY);
                         return true;
                     }
