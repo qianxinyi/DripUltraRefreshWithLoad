@@ -108,7 +108,7 @@ public class WithGridView extends TitleBaseFragment {
         mPtrFrame.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // mPtrFrame.autoRefresh();
+                mPtrFrame.autoRefresh();
             }
         }, 100);
 

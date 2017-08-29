@@ -12,7 +12,9 @@ import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.util.LocalDisplay;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.PtrHandler2;
 import in.srain.cube.views.ptr.demo.R;
+import in.srain.cube.views.ptr.footer.StoreHouseFooter;
 import in.srain.cube.views.ptr.header.StoreHouseHeader;
 
 import java.util.ArrayList;
@@ -41,12 +43,17 @@ public class StoreHouseUsingPointList extends TitleBaseFragment {
         // header
         final StoreHouseHeader header = new StoreHouseHeader(getContext());
         header.setPadding(0, LocalDisplay.dp2px(15), 0, 0);
-
         header.initWithPointList(getPointList());
+
+        //footer
+        final StoreHouseFooter  footer=new StoreHouseFooter(getContext());
+        footer.initWithPointList(getPointList());
 
         frame.setDurationToCloseHeader(3000);
         frame.setHeaderView(header);
+        frame.setFooterView(footer);
         frame.addPtrUIHandler(header);
+        frame.addPtrUIHandler2(footer);
         frame.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -68,6 +75,23 @@ public class StoreHouseUsingPointList extends TitleBaseFragment {
                         frame.refreshComplete();
                     }
                 }, 2000);
+            }
+        });
+        frame.setPtrHandler2(new PtrHandler2() {
+            @Override
+            public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
+                return true;
+            }
+
+            @Override
+            public void onLoadBegin(final PtrFrameLayout frame) {
+                frame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        frame.loadComplete();
+                    }
+                }, 0);
+
             }
         });
         return view;

@@ -47,7 +47,8 @@ public class PtrFrameLayout extends ViewGroup {
     private int mDurationToCloseHeader = 1000;
     private boolean mKeepHeaderWhenRefresh = true;
     private boolean mKeepFooterWhenRefresh=true;
-    private boolean mPullToRefresh = false;
+
+    private boolean mPullToRefresh = false;//下拉刷新
 
     private View mHeaderView;
     protected View mContent;
@@ -274,7 +275,6 @@ public class PtrFrameLayout extends ViewGroup {
             final int top = getMeasuredHeight() + paddingTop + lp.topMargin + offset;//????
             final int right = left + mFooterView.getMeasuredWidth();
             final int bottom = top + mFooterView.getMeasuredHeight();
-            mFooterView.setBackgroundColor(Color.BLUE);
             mFooterView.layout(left, top, right, bottom);
             if (isDebug()) {
                 PtrCLog.d(LOG_TAG, "onLayout footer: %s %s %s %s", left, top, right, bottom);
@@ -606,7 +606,7 @@ public class PtrFrameLayout extends ViewGroup {
         tryToPerformLoad();//回调类接口
         if (mStatus == PTR_STATUS_LOADING) {
             // keep footer for fresh
-            if (mKeepFooterWhenRefresh) {//?????// TODO: 2017/8/25
+            if (mKeepFooterWhenRefresh) {// TODO: 2017/8/25
                 // scroll footer back
                 if (mPtrIndicator.isOverOffsetToKeepFooterWhileLoading() && !stayForLoading) {
                     //表示移动到啥位置《底层封装好的》
