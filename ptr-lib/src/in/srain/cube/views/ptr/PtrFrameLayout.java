@@ -27,16 +27,18 @@ public class PtrFrameLayout extends ViewGroup {
     public final static byte PTR_STATUS_PREPARE = 2;
     public final static byte PTR_STATUS_LOADING = 3;
     public final static byte PTR_STATUS_COMPLETE = 4;
+
     private static final boolean DEBUG_LAYOUT = true;
     public static boolean DEBUG = false;
     private static int ID = 1;
     protected final String LOG_TAG = "ptr-frame-" + ++ID;
-    // auto refresh status
-    private final static byte FLAG_AUTO_REFRESH_AT_ONCE = 0x01;
+
+    // auto refresh status  <刷新方式的定义>
+    private final static byte FLAG_AUTO_REFRESH_AT_ONCE = 0x01;   //立即刷新方式
     private final static byte FLAG_AUTO_REFRESH_BUT_LATER = 0x01 << 1;
     private final static byte FLAG_ENABLE_NEXT_PTR_AT_ONCE = 0x01 << 2;
-    private final static byte FLAG_PIN_CONTENT = 0x01 << 3;
-    private final static byte MASK_AUTO_REFRESH = 0x03;
+    private final static byte FLAG_PIN_CONTENT = 0x01 << 3;   //悬浮式刷新
+    private final static byte MASK_AUTO_REFRESH = 0x03;    //自动刷新方式
 
     // optional config for define header and content in xml file
     private int mHeaderId = 0;
@@ -49,6 +51,7 @@ public class PtrFrameLayout extends ViewGroup {
     private boolean mKeepFooterWhenRefresh=true;
 
     private boolean mPullToRefresh = false;//下拉刷新
+    private boolean mPullToLoad=false;//上拉加载
 
     private View mHeaderView;
     protected View mContent;
@@ -311,30 +314,26 @@ public class PtrFrameLayout extends ViewGroup {
         if (!isEnabled() || mContent == null || mHeaderView == null) {
             return dispatchTouchEventSupper(e);
         }
-//        if((mPtrIndicator.isPullHeader||mPtrIndicator.isPullFooter)
-//                &&(mStatus==PTR_STATUS_COMPLETE||mStatus==PTR_STATUS_LOADING))
-//                  return dispatchTouchEventSupper(e);
         int action = e.getAction();
         switch (action) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mPtrIndicator.onRelease();
-                if (mPtrIndicator.hasLeftStartPosition()&&PtrIndicator.isPullHeader) {//处理下拉刷新
+                if (mPtrIndicator.hasLeftStartPosition() && PtrIndicator.isPullHeader) {//处理下拉刷新
                     onRelease(false);
                     if (mPtrIndicator.hasMovedAfterPressedDown()) {
                         sendCancelEvent();
                         return true;
                     }
                     return dispatchTouchEventSupper(e);
-                } else if(mPtrIndicator.hasLeftBottomPosition()&&PtrIndicator.isPullFooter) {//处理上拉加载
+                } else if (mPtrIndicator.hasLeftBottomPosition() && PtrIndicator.isPullFooter) {//处理上拉加载
                     onRelease2(false);//上拉加载
                     if (mPtrIndicator.hasMovedAfterPressedDown()) {
                         sendCancelEvent();
                         return true;
                     }
                     return dispatchTouchEventSupper(e);
-                }
-            else{
+                } else {
                     return dispatchTouchEventSupper(e);
                 }
 
@@ -359,38 +358,34 @@ public class PtrFrameLayout extends ViewGroup {
                         mPreventForHorizontal = true;
                     }
                 }
-                if (mPreventForHorizontal||offsetY==0) {
+                if (mPreventForHorizontal || offsetY == 0) {
                     return dispatchTouchEventSupper(e);
                 }
-                boolean moveDown=offsetY>0;
-                boolean moveUp=offsetY<0;
-                if(offsetY<0&&mPtrHandler2!=null){//上拉加载处理
-                    if(PtrIndicator.isPullHeader) return true;
-                    PtrIndicator.isPullHeader=false;//分辨正在拉头部或者尾部
-                    PtrIndicator.isPullFooter=true;
-                    boolean canMoveDown = mPtrIndicator.hasLeftBottomPosition();
+                boolean moveDown = offsetY > 0;
+                boolean moveUp = offsetY < 0;
+                boolean canMoveDown = mPtrIndicator.hasLeftBottomPosition();
+                boolean canMoveUp = mPtrIndicator.hasLeftStartPosition();
+                if (PtrIndicator.isPullFooter || (moveUp && mPtrHandler2 != null &&!PtrIndicator.isPullHeader)) {
+                    PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
+                    PtrIndicator.isPullFooter = true;
                     // disable move when footer not reach bottom<检测尾部>
-                    if (moveUp && mPtrHandler2!= null && !mPtrHandler2.checkCanDoLoad(this,mContent,mFooterView)) {
+                    if (moveUp && mPtrHandler2 != null && !mPtrHandler2.checkCanDoLoad(this, mContent, mFooterView)) {
+                        PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
+                        PtrIndicator.isPullFooter = false;
                         return dispatchTouchEventSupper(e);
                     }
-                    if ((moveDown && canMoveDown) || moveUp) {//// TODO: 2017/8/28 进行代码修改整理
+                    if ((moveDown && canMoveDown) || moveUp) {
                         movePos2(offsetY);
                         return true;
                     }
-
-                }else if(offsetY>0&&mPtrHandler!=null){  //下拉刷新处理
-                    if(PtrIndicator.isPullFooter)
-                        return true;
-                    PtrIndicator.isPullHeader=true;//分辨正在拉头部或者尾部
-                    PtrIndicator.isPullFooter=false;
-                    boolean canMoveUp = mPtrIndicator.hasLeftStartPosition();
-
-                    if (DEBUG) {
-                        boolean canMoveDown = mPtrHandler != null && mPtrHandler.checkCanDoRefresh(this, mContent, mHeaderView);
-                        PtrCLog.v(LOG_TAG, "ACTION_MOVE: offsetY:%s, currentPos: %s, moveUp: %s, canMoveUp: %s, moveDown: %s: canMoveDown: %s", offsetY, mPtrIndicator.getCurrentPosY(), moveUp, canMoveUp, moveDown, canMoveDown);
-                    }
+                }
+                if (PtrIndicator.isPullHeader || (moveDown && mPtrHandler != null && !PtrIndicator.isPullFooter)) {
+                    PtrIndicator.isPullHeader = true;//分辨正在拉头部或者尾部
+                    PtrIndicator.isPullFooter = false;
                     // disable move when header not reach top
                     if (moveDown && mPtrHandler != null && !mPtrHandler.checkCanDoRefresh(this, mContent, mHeaderView)) {
+                        PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
+                        PtrIndicator.isPullFooter = false;
                         return dispatchTouchEventSupper(e);
                     }
                     if ((moveUp && canMoveUp) || moveDown) {
@@ -401,6 +396,7 @@ public class PtrFrameLayout extends ViewGroup {
         }
         return dispatchTouchEventSupper(e);
     }
+
     /**
      * if deltaY < 0, move the content up
      * //关于FooterView ，HeaderView的处理
@@ -416,6 +412,7 @@ public class PtrFrameLayout extends ViewGroup {
             return;
         }
         int to = mPtrIndicator.getCurrentPosY()+(int) deltaY;
+        if(-to>3*mFooterHeight)    return;    // // TODO: 2017/9/1  限制最大移动高度
         // over bottom
         if (mPtrIndicator.willOverBottom(to)) {
             if (DEBUG) {
@@ -435,10 +432,10 @@ public class PtrFrameLayout extends ViewGroup {
             mHasSendCancelEvent = true;
             sendCancelEvent();
         }
-        boolean my=mPtrIndicator.hasJustLeftBottomPosition();
+
         // leave initiated position or just refresh complete  刚刚离开，UI进行准备显示阶段
         if ((mPtrIndicator.hasJustLeftBottomPosition()&& mStatus == PTR_STATUS_INIT) ||
-                (mPtrIndicator.goDownCrossFinishPosition() && mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
+                (mPtrIndicator.goUpCrossFinishPosition()&& mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
             mStatus = PTR_STATUS_PREPARE;
             mPtrUIHandlerHolder2.onUIRefreshPrepare(this);
             if (DEBUG) {
@@ -459,8 +456,7 @@ public class PtrFrameLayout extends ViewGroup {
         // Pull to Refresh<pull to load>
         if (mStatus == PTR_STATUS_PREPARE) {
             // reach fresh height while moving from top to bottom
-            if (isUnderTouch //&& !isAutoRefresh() && mPullToRefresh
-                    && mPtrIndicator.crossLoadLineFromTopToBottom()) {
+            if (isUnderTouch && !isAutoRefresh() && mPullToLoad && mPtrIndicator.crossLoadLineFromTopToBottom()) {
                 tryToPerformLoad();
             }
             // reach header height while auto refresh
@@ -495,7 +491,7 @@ public class PtrFrameLayout extends ViewGroup {
         }
 
         int to = mPtrIndicator.getCurrentPosY() + (int) deltaY;
-
+        if(to>3*mHeaderHeight)  return;
         // over top
         if (mPtrIndicator.willOverTop(to)) {
             if (DEBUG) {
@@ -513,7 +509,6 @@ public class PtrFrameLayout extends ViewGroup {
         }
 
         boolean isUnderTouch = mPtrIndicator.isUnderTouch();
-
         // once moved, cancel event will be sent to child
         if (isUnderTouch && !mHasSendCancelEvent && mPtrIndicator.hasMovedAfterPressedDown()) {
             mHasSendCancelEvent = true;
@@ -523,7 +518,6 @@ public class PtrFrameLayout extends ViewGroup {
         // leave initiated position or just refresh complete
         if ((mPtrIndicator.hasJustLeftStartPosition() && mStatus == PTR_STATUS_INIT) ||
                 (mPtrIndicator.goDownCrossFinishPosition() && mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
-
             mStatus = PTR_STATUS_PREPARE;
             mPtrUIHandlerHolder.onUIRefreshPrepare(this);
             if (DEBUG) {
@@ -544,8 +538,7 @@ public class PtrFrameLayout extends ViewGroup {
         // Pull to Refresh
         if (mStatus == PTR_STATUS_PREPARE) {
             // reach fresh height while moving from top to bottom
-            if (isUnderTouch && !isAutoRefresh() && mPullToRefresh
-                    && mPtrIndicator.crossRefreshLineFromTopToBottom()) {
+            if (isUnderTouch && !isAutoRefresh() && mPullToRefresh && mPtrIndicator.crossRefreshLineFromTopToBottom()) {
                 tryToPerformRefresh();
             }
             // reach header height while auto refresh
@@ -559,11 +552,11 @@ public class PtrFrameLayout extends ViewGroup {
                     change, mPtrIndicator.getCurrentPosY(), mPtrIndicator.getLastPosY(), mContent.getTop(), mHeaderHeight);
         }
 
+        //做最大滑动距离判定
         mHeaderView.offsetTopAndBottom(change);
         if (!isPinContent()) {
             mContent.offsetTopAndBottom(change);
         }
-
         invalidate();
 
         if (mPtrUIHandlerHolder.hasHandler()) {
@@ -870,7 +863,6 @@ public class PtrFrameLayout extends ViewGroup {
      */
     private void performRefreshComplete() {
         mStatus = PTR_STATUS_COMPLETE;
-
         // if is auto refresh do nothing, wait scroller stop
         if (mScrollChecker.mIsRunning && isAutoRefresh()) {
             // do nothing
@@ -1043,6 +1035,7 @@ public class PtrFrameLayout extends ViewGroup {
      */
     @Deprecated
     public void setInterceptEventWhileWorking(boolean yes) {
+
     }
 
     @SuppressWarnings({"unused"})
@@ -1164,12 +1157,10 @@ public class PtrFrameLayout extends ViewGroup {
         mKeepFooterWhenRefresh = keepOrNot;
     }
 
-    public boolean isPullToRefresh() {
-        return mPullToRefresh;
-    }
-    public void setPullToRefresh(boolean pullToRefresh) {
-        mPullToRefresh = pullToRefresh;
-    }
+    public boolean isPullToRefresh() {return mPullToRefresh;}
+    public void setPullToRefresh(boolean pullToRefresh) {mPullToRefresh = pullToRefresh;}
+    public boolean isPullToLoad() {return mPullToLoad;}
+    public void setPullToLoad(boolean pullToLoad) {mPullToLoad = pullToLoad;}
 
     @SuppressWarnings({"unused"})
     public View getHeaderView() {

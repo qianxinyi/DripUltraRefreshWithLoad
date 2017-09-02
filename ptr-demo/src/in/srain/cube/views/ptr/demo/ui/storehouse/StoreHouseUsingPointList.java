@@ -90,7 +90,7 @@ public class StoreHouseUsingPointList extends TitleBaseFragment {
                     public void run() {
                         frame.loadComplete();
                     }
-                }, 0);
+                }, 2000);
 
             }
         });

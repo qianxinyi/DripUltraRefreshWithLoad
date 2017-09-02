@@ -50,6 +50,9 @@ public class PtrIndicator {
     public boolean goDownCrossFinishPosition() {
         return mCurrentPos >= mRefreshCompleteY;
     }
+    public boolean goUpCrossFinishPosition() {
+        return mCurrentPos <= mRefreshCompleteY;
+    }
 
     protected void processOnMove(float currentX, float currentY, float offsetX, float offsetY) {
         setOffset(offsetX, offsetY / mResistance);
@@ -201,7 +204,7 @@ public class PtrIndicator {
     }
 
     public boolean crossLoadLineFromTopToBottom() {
-        return mLastPos < getOffsetToLoad() && mCurrentPos >= getOffsetToLoad();
+        return (-mLastPos) < getOffsetToLoad() && (-mCurrentPos) >= getOffsetToLoad();
     }
 
     public boolean hasJustReachedHeaderHeightFromTopToBottom() {

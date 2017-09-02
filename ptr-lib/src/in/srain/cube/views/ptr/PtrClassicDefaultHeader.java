@@ -137,9 +137,7 @@ public class PtrClassicDefaultHeader extends FrameLayout implements PtrUIHandler
         mShouldShowLastUpdate = true;
         tryUpdateLastUpdateTime();
         mLastUpdateTimeUpdater.start();
-
         mProgressBar.setVisibility(INVISIBLE);
-
         mRotateView.setVisibility(VISIBLE);
         mTitleTextView.setVisibility(VISIBLE);
         if (frame.isPullToRefresh()) {

@@ -107,7 +107,7 @@ public class WithListViewAndEmptyView extends TitleBaseFragment {
                         mPtrFrame.loadComplete();
 
                     }
-                }, 0);
+                }, 2000);
             }
         });
 

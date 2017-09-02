@@ -83,6 +83,10 @@ public class WithListView extends TitleBaseFragment {
                 updateData2();
             }
         });
+
+        mPtrFrame.setEnabledNextPtrAtOnce(true);
+         //原生风格悬浮式刷新方式
+        //mPtrFrame.setPinContent(true);
         // the following are default settings
         mPtrFrame.setResistance(1.7f);
         mPtrFrame.setRatioOfHeight(1.2f);
