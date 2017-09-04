@@ -1,7 +1,7 @@
 package in.srain.cube.views.ptr;
 
 import android.view.View;
-//下拉刷新功能接口
+//下拉刷新功能接口<上拉刷新功能接口>是否合并
 
 public interface PtrHandler {
 

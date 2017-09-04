@@ -580,7 +580,7 @@ public class PtrFrameLayout extends ViewGroup {
             if (mKeepHeaderWhenRefresh) {
                 // scroll header back
                 if (mPtrIndicator.isOverOffsetToKeepHeaderWhileLoading() && !stayForLoading) {
-                    mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToKeepHeaderWhileLoading(), mDurationToClose);
+                    mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToKeepHeaderWhileLoading(), mDurationToClose,false);
                 } else {
                     // do nothing
                 }
@@ -649,20 +649,18 @@ public class PtrFrameLayout extends ViewGroup {
     }
 
     /**
-     * Scroll back to to if is not under touch
+     * Scroll back to  if is not under touch
      */
     private void tryScrollBackToTop() {
         if (!mPtrIndicator.isUnderTouch()) {
-            mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader);
+            mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader,false);
         }
     }
-
     private void tryScrollBackToBottom() {
         if (!mPtrIndicator.isUnderTouch()) {
             mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader,true);
         }
     }
-
     /**
      * just make easier to understand
      */
@@ -699,7 +697,6 @@ public class PtrFrameLayout extends ViewGroup {
         if (mStatus != PTR_STATUS_PREPARE) {
             return false;
         }
-
         if ((mPtrIndicator.isOverOffsetToKeepHeaderWhileLoading() && isAutoRefresh()) ||
                 mPtrIndicator.isOverOffsetToRefresh()) {
             mStatus = PTR_STATUS_LOADING;
@@ -780,7 +777,6 @@ public class PtrFrameLayout extends ViewGroup {
         }
         return false;
     }
-
     protected void onPtrScrollAbort() {
         if (mPtrIndicator.hasLeftStartPosition() && isAutoRefresh()) {
             if (DEBUG) {
@@ -938,7 +934,6 @@ public class PtrFrameLayout extends ViewGroup {
         tryToNotifyReset();
     }
 
-
     public void autoRefresh() {
         autoRefresh(true, mDurationToCloseHeader);
     }
@@ -961,7 +956,7 @@ public class PtrFrameLayout extends ViewGroup {
                 PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshPrepare, mFlag %s", mFlag);
             }
         }
-        mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToRefresh(), duration);
+        mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToRefresh(), duration,false);
         if (atOnce) {
             mStatus = PTR_STATUS_LOADING;
             performRefresh();
@@ -1289,7 +1284,6 @@ public class PtrFrameLayout extends ViewGroup {
                 finish();
             }
         }
-
         private void finish() {
             if (DEBUG) {
                 PtrCLog.v(LOG_TAG, "finish, currentPos:%s", mPtrIndicator.getCurrentPosY());
@@ -1297,7 +1291,6 @@ public class PtrFrameLayout extends ViewGroup {
             reset();
             onPtrScrollFinish();
         }
-
         private void reset() {
             mIsRunning = false;
             mLastFlingY = 0;
@@ -1306,7 +1299,6 @@ public class PtrFrameLayout extends ViewGroup {
             PtrIndicator.isPullFooter=false;
             PtrIndicator.isPullHeader=false;
         }
-
         private void destroy() {
             reset();
             if (!mScroller.isFinished()) {
@@ -1322,28 +1314,6 @@ public class PtrFrameLayout extends ViewGroup {
                 onPtrScrollAbort();
                 reset();
             }
-        }
-
-        public void tryToScrollTo(int to, int duration) {
-            if (mPtrIndicator.isAlreadyHere(to)) {
-                return;
-            }
-            mStart = mPtrIndicator.getCurrentPosY();
-            mTo = to;
-            int distance = to - mStart;
-            if (DEBUG) {
-                PtrCLog.d(LOG_TAG, "tryToScrollTo: start: %s, distance:%s, to:%s", mStart, distance, to);
-            }
-            removeCallbacks(this);
-            mLastFlingY = 0;
-
-            // fix #47: Scroller should be reused, https://github.com/liaohuqiu/android-Ultra-Pull-To-Refresh/issues/47
-            if (!mScroller.isFinished()) {
-                mScroller.forceFinished(true);
-            }
-            mScroller.startScroll(0, 0, 0, distance, duration);
-            post(this);
-            mIsRunning = true;
         }
         public void tryToScrollTo(int to, int duration,boolean isPullToLoad) {
             this.isPullToLoad=isPullToLoad;//判断上拉与否

@@ -7,17 +7,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import in.srain.cube.mints.base.BlockMenuFragment;
-import in.srain.cube.util.LocalDisplay;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.ui.classic.*;
 import in.srain.cube.views.ptr.demo.ui.storehouse.StoreHouseUsingPointList;
 import in.srain.cube.views.ptr.demo.ui.storehouse.StoreHouseUsingString;
 import in.srain.cube.views.ptr.demo.ui.storehouse.StoreHouseUsingStringArray;
 import in.srain.cube.views.ptr.demo.ui.viewpager.ViewPagerActivity;
-import in.srain.cube.views.ptr.header.StoreHouseHeader;
 
 import java.util.ArrayList;
 
@@ -25,6 +20,14 @@ public class PtrDemoHomeFragment extends BlockMenuFragment {
 
     @Override
     protected void addItemInfo(ArrayList<BlockMenuFragment.MenuItemInfo> itemInfos) {
+        //RecycleView
+        itemInfos.add(newItemInfo(R.string.ptr_demo_block_recycle_view, R.color.cube_mints_4d90fe, new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                getContext().pushFragmentToBackStack(WithRecyclerView.class, null);
+            }
+        }));
 
         // GridView
         itemInfos.add(newItemInfo(R.string.ptr_demo_block_grid_view, R.color.cube_mints_4d90fe, new OnClickListener() {
