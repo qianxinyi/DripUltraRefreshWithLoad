@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
-public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooterHandler {
+public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooter {
     private TextView footerTitle;
     private ProgressBar footerProgressBar;
 

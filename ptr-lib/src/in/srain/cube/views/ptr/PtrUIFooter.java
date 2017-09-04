@@ -3,9 +3,9 @@ package in.srain.cube.views.ptr;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
 /**
- *head UI
+ *footer UI
  */
-public interface PtrUIHeaderHandler {
+public interface PtrUIFooter {
 
     /**
      * When the content view has reached top and refresh has been completed, view will be reset.
@@ -22,7 +22,7 @@ public interface PtrUIHeaderHandler {
     public void onUIRefreshPrepare(PtrFrameLayout frame);
 
     /**
-     * perform refreshing UI
+     * perform loading UI
      */
     public void onUIRefreshBegin(PtrFrameLayout frame);
 

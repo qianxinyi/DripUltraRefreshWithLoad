@@ -54,7 +54,7 @@ public class RentalsStyleFragment extends TitleBaseFragment {
         frame.setLoadingMinTime(1000);
         frame.setDurationToCloseHeader(1500);
         frame.setHeaderView(header);
-        frame.addPtrUIHeaderHandler(header);
+        frame.addPtrUIHeader(header);
         // frame.setPullToRefresh(true);
         frame.postDelayed(new Runnable() {
             @Override

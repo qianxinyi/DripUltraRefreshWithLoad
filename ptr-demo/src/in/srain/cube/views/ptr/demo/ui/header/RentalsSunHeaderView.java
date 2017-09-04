@@ -6,11 +6,11 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrUIHeaderHandler;
+import in.srain.cube.views.ptr.PtrUIHeader;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 import in.srain.cube.views.ptr.indicator.PtrTensionIndicator;
 
-public class RentalsSunHeaderView extends View implements PtrUIHeaderHandler {
+public class RentalsSunHeaderView extends View implements PtrUIHeader {
 
     private RentalsSunDrawable mDrawable;
     private PtrFrameLayout mPtrFrameLayout;

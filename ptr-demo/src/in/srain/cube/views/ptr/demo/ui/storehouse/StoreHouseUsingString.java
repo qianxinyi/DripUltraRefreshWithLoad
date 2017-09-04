@@ -11,7 +11,7 @@ import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.util.LocalDisplay;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrRefreshHandler;
-import in.srain.cube.views.ptr.PtrUIHeaderHandler;
+import in.srain.cube.views.ptr.PtrUIHeader;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.header.StoreHouseHeader;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
@@ -46,7 +46,7 @@ public class StoreHouseUsingString extends TitleBaseFragment {
         setHeaderTitle(mTitlePre + mStringList[0]);
 
         // for changing string
-        frame.addPtrUIHeaderHandler(new PtrUIHeaderHandler() {
+        frame.addPtrUIHeader(new PtrUIHeader() {
 
             private int mLoadTime = 0;
 
@@ -81,7 +81,7 @@ public class StoreHouseUsingString extends TitleBaseFragment {
 
         frame.setDurationToCloseHeader(3000);
         frame.setHeaderView(header);
-        frame.addPtrUIHeaderHandler(header);
+        frame.addPtrUIHeader(header);
         frame.postDelayed(new Runnable() {
             @Override
             public void run() {

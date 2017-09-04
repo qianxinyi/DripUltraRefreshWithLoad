@@ -10,11 +10,11 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrUIHeaderHandler;
+import in.srain.cube.views.ptr.PtrUIHeader;
 import in.srain.cube.views.ptr.PtrUIHandlerHook;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
-public class MaterialHeader extends View implements PtrUIHeaderHandler {
+public class MaterialHeader extends View implements PtrUIHeader {
 
     private MaterialProgressDrawable mDrawable;
     private float mScale = 1f;
