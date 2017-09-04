@@ -19,10 +19,10 @@ import in.srain.cube.request.RequestFinishHandler;
 import in.srain.cube.views.list.ListViewDataAdapter;
 import in.srain.cube.views.list.ViewHolderBase;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.PtrHandler2;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
+import in.srain.cube.views.ptr.PtrLoadHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.data.DemoRequestData;
 import in.srain.cube.views.ptr.demo.ui.MaterialStyleFragment;
@@ -60,7 +60,7 @@ public class WithListView extends TitleBaseFragment {
 
         mPtrFrame = (PtrClassicFrameLayout) contentView.findViewById(R.id.rotate_header_list_view_frame);
         mPtrFrame.setLastUpdateTimeRelateObject(this);
-        mPtrFrame.setPtrHandler(new PtrHandler() {
+        mPtrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
                 updateData();
@@ -68,13 +68,13 @@ public class WithListView extends TitleBaseFragment {
 
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledDown(frame, content, header);
             }
         });
-        mPtrFrame.setPtrHandler2(new PtrHandler2() {
+        mPtrFrame.setPtrLoadHandler(new PtrLoadHandler() {
             @Override
             public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
-                return PtrDefaultHandler.checkContentCanBePulledUp(frame,content,footer);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledUp(frame,content,footer);
             }
 
             @Override

@@ -2,7 +2,7 @@ package in.srain.cube.views.ptr.demo.ui.classic;
 
 import android.view.View;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.ui.Utils;
@@ -17,7 +17,7 @@ public class HideHeader extends WithTextViewInFrameLayoutFragment {
         final View loading = Utils.createSimpleLoadingTip(getContext());
         mTitleHeaderBar.getRightViewContainer().addView(loading);
 
-        ptrFrame.setPtrHandler(new PtrDefaultHandler() {
+        ptrFrame.setPtrRefreshHandler(new PtrDefaultRefreshLoadHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
                 loading.setVisibility(View.VISIBLE);

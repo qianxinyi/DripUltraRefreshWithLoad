@@ -5,7 +5,7 @@ import in.srain.cube.views.ptr.indicator.PtrIndicator;
 /**
  *head UI
  */
-public interface PtrUIHandler {
+public interface PtrUIHeaderHandler {
 
     /**
      * When the content view has reached top and refresh has been completed, view will be reset.

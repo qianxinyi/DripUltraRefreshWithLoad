@@ -20,10 +20,10 @@ import in.srain.cube.request.RequestFinishHandler;
 import in.srain.cube.views.list.ListViewDataAdapter;
 import in.srain.cube.views.list.ViewHolderBase;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.PtrHandler2;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
+import in.srain.cube.views.ptr.PtrLoadHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.data.DemoRequestData;
 import in.srain.cube.views.ptr.demo.ui.MaterialStyleFragment;
@@ -78,12 +78,12 @@ public class WithListViewAndEmptyView extends TitleBaseFragment {
         mListView.setAdapter(mAdapter);
 
         mPtrFrame.setLastUpdateTimeRelateObject(this);
-        mPtrFrame.setPtrHandler(new PtrHandler() {
+        mPtrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
 
                 // here check $mListView instead of $content
-                return PtrDefaultHandler.checkContentCanBePulledDown(frame, mListView, header);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledDown(frame, mListView, header);
             }
 
             @Override
@@ -91,10 +91,10 @@ public class WithListViewAndEmptyView extends TitleBaseFragment {
                 updateData();
             }
         });
-        mPtrFrame.setPtrHandler2(new PtrHandler2() {
+        mPtrFrame.setPtrLoadHandler(new PtrLoadHandler() {
             @Override
             public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
-                return PtrDefaultHandler.checkContentCanBePulledUp(frame, mListView, footer);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledUp(frame, mListView, footer);
             }
 
             @Override

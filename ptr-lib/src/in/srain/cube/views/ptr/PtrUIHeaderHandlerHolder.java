@@ -3,18 +3,18 @@ package in.srain.cube.views.ptr;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
 /**
- * A single linked list to wrap PtrUIHandler
+ * A single linked list to wrap PtrUIHeaderHandler
  */
-class PtrUIHandlerHolder implements PtrUIHandler {
+class PtrUIHeaderHandlerHolder implements PtrUIHeaderHandler {
 
-    private PtrUIHandler mHandler;
-    private PtrUIHandlerHolder mNext;
+    private PtrUIHeaderHandler mHandler;
+    private PtrUIHeaderHandlerHolder mNext;
 
-    private boolean contains(PtrUIHandler handler) {
+    private boolean contains(PtrUIHeaderHandler handler) {
         return mHandler != null && mHandler == handler;
     }
 
-    private PtrUIHandlerHolder() {
+    private PtrUIHeaderHandlerHolder() {
 
     }
 
@@ -22,11 +22,11 @@ class PtrUIHandlerHolder implements PtrUIHandler {
         return mHandler != null;
     }
 
-    private PtrUIHandler getHandler() {
+    private PtrUIHeaderHandler getHandler() {
         return mHandler;
     }
 
-    public static void addHandler(PtrUIHandlerHolder head, PtrUIHandler handler) {
+    public static void addHandler(PtrUIHeaderHandlerHolder head, PtrUIHeaderHandler handler) {
 
         if (null == handler) {
             return;
@@ -39,7 +39,7 @@ class PtrUIHandlerHolder implements PtrUIHandler {
             return;
         }
 
-        PtrUIHandlerHolder current = head;
+        PtrUIHeaderHandlerHolder current = head;
         for (; ; current = current.mNext) {
 
             // duplicated
@@ -51,22 +51,22 @@ class PtrUIHandlerHolder implements PtrUIHandler {
             }
         }
 
-        PtrUIHandlerHolder newHolder = new PtrUIHandlerHolder();
+        PtrUIHeaderHandlerHolder newHolder = new PtrUIHeaderHandlerHolder();
         newHolder.mHandler = handler;
         current.mNext = newHolder;
     }
 
-    public static PtrUIHandlerHolder create() {
-        return new PtrUIHandlerHolder();
+    public static PtrUIHeaderHandlerHolder create() {
+        return new PtrUIHeaderHandlerHolder();
     }
 
-    public static PtrUIHandlerHolder removeHandler(PtrUIHandlerHolder head, PtrUIHandler handler) {
+    public static PtrUIHeaderHandlerHolder removeHandler(PtrUIHeaderHandlerHolder head, PtrUIHeaderHandler handler) {
         if (head == null || handler == null || null == head.mHandler) {
             return head;
         }
 
-        PtrUIHandlerHolder current = head;
-        PtrUIHandlerHolder pre = null;
+        PtrUIHeaderHandlerHolder current = head;
+        PtrUIHeaderHandlerHolder pre = null;
         do {
 
             // delete current: link pre to next, unlink next from current;
@@ -94,16 +94,16 @@ class PtrUIHandlerHolder implements PtrUIHandler {
         } while (current != null);
 
         if (head == null) {
-            head = new PtrUIHandlerHolder();
+            head = new PtrUIHeaderHandlerHolder();
         }
         return head;
     }
 
     @Override
     public void onUIReset(PtrFrameLayout frame) {
-        PtrUIHandlerHolder current = this;
+        PtrUIHeaderHandlerHolder current = this;
         do {
-            final PtrUIHandler handler = current.getHandler();
+            final PtrUIHeaderHandler handler = current.getHandler();
             if (null != handler) {
                 handler.onUIReset(frame);
             }
@@ -115,9 +115,9 @@ class PtrUIHandlerHolder implements PtrUIHandler {
         if (!hasHandler()) {
             return;
         }
-        PtrUIHandlerHolder current = this;
+        PtrUIHeaderHandlerHolder current = this;
         do {
-            final PtrUIHandler handler = current.getHandler();
+            final PtrUIHeaderHandler handler = current.getHandler();
             if (null != handler) {
                 handler.onUIRefreshPrepare(frame);
             }
@@ -126,9 +126,9 @@ class PtrUIHandlerHolder implements PtrUIHandler {
 
     @Override
     public void onUIRefreshBegin(PtrFrameLayout frame) {
-        PtrUIHandlerHolder current = this;
+        PtrUIHeaderHandlerHolder current = this;
         do {
-            final PtrUIHandler handler = current.getHandler();
+            final PtrUIHeaderHandler handler = current.getHandler();
             if (null != handler) {
                 handler.onUIRefreshBegin(frame);
             }
@@ -137,9 +137,9 @@ class PtrUIHandlerHolder implements PtrUIHandler {
 
     @Override
     public void onUIRefreshComplete(PtrFrameLayout frame) {
-        PtrUIHandlerHolder current = this;
+        PtrUIHeaderHandlerHolder current = this;
         do {
-            final PtrUIHandler handler = current.getHandler();
+            final PtrUIHeaderHandler handler = current.getHandler();
             if (null != handler) {
                 handler.onUIRefreshComplete(frame);
             }
@@ -148,9 +148,9 @@ class PtrUIHandlerHolder implements PtrUIHandler {
 
     @Override
     public void onUIPositionChange(PtrFrameLayout frame, boolean isUnderTouch, byte status, PtrIndicator ptrIndicator) {
-        PtrUIHandlerHolder current = this;
+        PtrUIHeaderHandlerHolder current = this;
         do {
-            final PtrUIHandler handler = current.getHandler();
+            final PtrUIHeaderHandler handler = current.getHandler();
             if (null != handler) {
                 handler.onUIPositionChange(frame, isUnderTouch, status, ptrIndicator);
             }

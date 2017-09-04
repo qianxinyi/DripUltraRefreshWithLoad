@@ -5,7 +5,7 @@ import in.srain.cube.views.ptr.indicator.PtrIndicator;
 /**
  *footer UI
  */
-public interface PtrUIHandler2 {
+public interface PtrUIFooterHandler {
 
     /**
      * When the content view has reached top and refresh has been completed, view will be reset.

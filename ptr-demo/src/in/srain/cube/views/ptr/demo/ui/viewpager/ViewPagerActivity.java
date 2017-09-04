@@ -19,7 +19,7 @@ import in.srain.cube.util.LocalDisplay;
 import in.srain.cube.views.pager.TabPageIndicator;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.data.DemoRequestData;
 
@@ -70,7 +70,7 @@ public class ViewPagerActivity extends TitleBaseActivity {
 
         mPtrFrame = (PtrClassicFrameLayout) findViewById(R.id.view_pager_ptr_frame);
         mPtrFrame.disableWhenHorizontalMove(true);
-        mPtrFrame.setPtrHandler(new PtrHandler() {
+        mPtrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
                 return mPagerAdapter.checkCanDoRefresh();

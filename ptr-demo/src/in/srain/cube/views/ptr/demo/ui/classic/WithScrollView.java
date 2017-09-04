@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ScrollView;
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.PtrHandler2;
+import in.srain.cube.views.ptr.PtrLoadHandler;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
 import in.srain.cube.views.ptr.demo.R;
 
 public class WithScrollView extends TitleBaseFragment {
@@ -27,10 +27,10 @@ public class WithScrollView extends TitleBaseFragment {
         mScrollView = (ScrollView) contentView.findViewById(R.id.rotate_header_scroll_view);
         mPtrFrame = (PtrClassicFrameLayout) contentView.findViewById(R.id.rotate_header_web_view_frame);
         mPtrFrame.setLastUpdateTimeRelateObject(this);
-        mPtrFrame.setPtrHandler(new PtrHandler() {
+        mPtrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                return PtrDefaultHandler.checkContentCanBePulledDown(frame, mScrollView, header);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledDown(frame, mScrollView, header);
             }
 
             @Override
@@ -43,10 +43,10 @@ public class WithScrollView extends TitleBaseFragment {
                 }, 100);
             }
         });
-        mPtrFrame.setPtrHandler2(new PtrHandler2() {
+        mPtrFrame.setPtrLoadHandler(new PtrLoadHandler() {
             @Override
             public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
-                return  PtrDefaultHandler.checkContentCanBePulledUp(frame, mScrollView, footer);
+                return  PtrDefaultRefreshLoadHandler.checkContentCanBePulledUp(frame, mScrollView, footer);
             }
 
             @Override

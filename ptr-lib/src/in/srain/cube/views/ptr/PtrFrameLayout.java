@@ -2,22 +2,20 @@ package in.srain.cube.views.ptr;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.*;
 import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 import android.widget.Scroller;
-import android.widget.TextView;
+
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 import in.srain.cube.views.ptr.util.PtrCLog;
 
 /**
  * This layout view for "Pull to Refresh(Ptr)" support all of the view, you can contain everything you want.
  * support: pull to refresh / release to refresh / auto refresh / keep header view while refreshing / hide header view while refreshing
- * It defines {@link in.srain.cube.views.ptr.PtrUIHandler}, which allows you customize the UI easily.
+ * It defines {@link PtrUIHeaderHandler}, which allows you customize the UI easily.
  */
 public class PtrFrameLayout extends ViewGroup {
 
@@ -57,10 +55,10 @@ public class PtrFrameLayout extends ViewGroup {
     protected View mContent;
     private View mFooterView;
 
-    private PtrUIHandlerHolder mPtrUIHandlerHolder = PtrUIHandlerHolder.create();
-    private PtrHandler mPtrHandler;
-    private PtrUIHandlerHolder2 mPtrUIHandlerHolder2 = PtrUIHandlerHolder2.create();
-    private PtrHandler2 mPtrHandler2;
+    private PtrUIHeaderHandlerHolder mPtrUIHeaderHandlerHolder = PtrUIHeaderHandlerHolder.create();
+    private PtrRefreshHandler mPtrRefreshHandler;
+    private PtrUIFooterHandlerHolder mPtrUIFooterHandlerHolder = PtrUIFooterHandlerHolder.create();
+    private PtrLoadHandler mPtrLoadHandler;
 
     // working parameters
     private ScrollChecker mScrollChecker;
@@ -143,9 +141,9 @@ public class PtrFrameLayout extends ViewGroup {
         //第一次查找确认的 子View
         for (int i = 0; i < childCount; i++) {
             View view = getChildAt(i);
-            if (view instanceof PtrUIHandler && mHeaderView == null) {
+            if (view instanceof PtrUIHeaderHandler && mHeaderView == null) {
                 mHeaderView = view;
-            } else if (view instanceof PtrUIHandler2 && mFooterView == null) {
+            } else if (view instanceof PtrUIFooterHandler && mFooterView == null) {
                 mFooterView = view;
             } else if (mContent == null && (
                                view instanceof AbsListView
@@ -365,11 +363,11 @@ public class PtrFrameLayout extends ViewGroup {
                 boolean moveUp = offsetY < 0;
                 boolean canMoveDown = mPtrIndicator.hasLeftBottomPosition();
                 boolean canMoveUp = mPtrIndicator.hasLeftStartPosition();
-                if (PtrIndicator.isPullFooter || (moveUp && mPtrHandler2 != null &&!PtrIndicator.isPullHeader)) {
+                if (PtrIndicator.isPullFooter || (moveUp && mPtrLoadHandler != null &&!PtrIndicator.isPullHeader)) {
                     PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
                     PtrIndicator.isPullFooter = true;
                     // disable move when footer not reach bottom<检测尾部>
-                    if (moveUp && mPtrHandler2 != null && !mPtrHandler2.checkCanDoLoad(this, mContent, mFooterView)) {
+                    if (moveUp && mPtrLoadHandler != null && !mPtrLoadHandler.checkCanDoLoad(this, mContent, mFooterView)) {
                         PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
                         PtrIndicator.isPullFooter = false;
                         return dispatchTouchEventSupper(e);
@@ -379,11 +377,11 @@ public class PtrFrameLayout extends ViewGroup {
                         return true;
                     }
                 }
-                if (PtrIndicator.isPullHeader || (moveDown && mPtrHandler != null && !PtrIndicator.isPullFooter)) {
+                if (PtrIndicator.isPullHeader || (moveDown && mPtrRefreshHandler != null && !PtrIndicator.isPullFooter)) {
                     PtrIndicator.isPullHeader = true;//分辨正在拉头部或者尾部
                     PtrIndicator.isPullFooter = false;
                     // disable move when header not reach top
-                    if (moveDown && mPtrHandler != null && !mPtrHandler.checkCanDoRefresh(this, mContent, mHeaderView)) {
+                    if (moveDown && mPtrRefreshHandler != null && !mPtrRefreshHandler.checkCanDoRefresh(this, mContent, mHeaderView)) {
                         PtrIndicator.isPullHeader = false;//分辨正在拉头部或者尾部
                         PtrIndicator.isPullFooter = false;
                         return dispatchTouchEventSupper(e);
@@ -437,9 +435,9 @@ public class PtrFrameLayout extends ViewGroup {
         if ((mPtrIndicator.hasJustLeftBottomPosition()&& mStatus == PTR_STATUS_INIT) ||
                 (mPtrIndicator.goUpCrossFinishPosition()&& mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
             mStatus = PTR_STATUS_PREPARE;
-            mPtrUIHandlerHolder2.onUIRefreshPrepare(this);
+            mPtrUIFooterHandlerHolder.onUIRefreshPrepare(this);
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshPrepare, mFlag %s", mFlag);
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshPrepare, mFlag %s", mFlag);
             }
         }
 
@@ -476,8 +474,8 @@ public class PtrFrameLayout extends ViewGroup {
         }
         invalidate();
 
-        if (mPtrUIHandlerHolder2.hasHandler()) {
-            mPtrUIHandlerHolder2.onUIPositionChange(this, isUnderTouch, mStatus, mPtrIndicator);
+        if (mPtrUIFooterHandlerHolder.hasHandler()) {
+            mPtrUIFooterHandlerHolder.onUIPositionChange(this, isUnderTouch, mStatus, mPtrIndicator);
         }
         onPositionChange(isUnderTouch, mStatus, mPtrIndicator);
     }
@@ -519,9 +517,9 @@ public class PtrFrameLayout extends ViewGroup {
         if ((mPtrIndicator.hasJustLeftStartPosition() && mStatus == PTR_STATUS_INIT) ||
                 (mPtrIndicator.goDownCrossFinishPosition() && mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
             mStatus = PTR_STATUS_PREPARE;
-            mPtrUIHandlerHolder.onUIRefreshPrepare(this);
+            mPtrUIHeaderHandlerHolder.onUIRefreshPrepare(this);
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshPrepare, mFlag %s", mFlag);
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshPrepare, mFlag %s", mFlag);
             }
         }
 
@@ -559,8 +557,8 @@ public class PtrFrameLayout extends ViewGroup {
         }
         invalidate();
 
-        if (mPtrUIHandlerHolder.hasHandler()) {
-            mPtrUIHandlerHolder.onUIPositionChange(this, isUnderTouch, mStatus, mPtrIndicator);
+        if (mPtrUIHeaderHandlerHolder.hasHandler()) {
+            mPtrUIHeaderHandlerHolder.onUIPositionChange(this, isUnderTouch, mStatus, mPtrIndicator);
         }
         onPositionChange(isUnderTouch, mStatus, mPtrIndicator);
     }
@@ -724,26 +722,26 @@ public class PtrFrameLayout extends ViewGroup {
 
     private void performRefresh() {
         mLoadingStartTime = System.currentTimeMillis();
-        if (mPtrUIHandlerHolder.hasHandler()) {
-            mPtrUIHandlerHolder.onUIRefreshBegin(this);
+        if (mPtrUIHeaderHandlerHolder.hasHandler()) {
+            mPtrUIHeaderHandlerHolder.onUIRefreshBegin(this);
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshBegin");
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshBegin");
             }
         }
-        if (mPtrHandler != null) {
-            mPtrHandler.onRefreshBegin(this);
+        if (mPtrRefreshHandler != null) {
+            mPtrRefreshHandler.onRefreshBegin(this);
         }
     }
     private void performLoad() {
         mLoadingStartTime = System.currentTimeMillis();
-        if (mPtrUIHandlerHolder2.hasHandler()) {
-            mPtrUIHandlerHolder2.onUIRefreshBegin(this);
+        if (mPtrUIFooterHandlerHolder.hasHandler()) {
+            mPtrUIFooterHandlerHolder.onUIRefreshBegin(this);
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshBegin");
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshBegin");
             }
         }
-        if (mPtrHandler2!= null) {
-            mPtrHandler2.onLoadBegin(this);
+        if (mPtrLoadHandler != null) {
+            mPtrLoadHandler.onLoadBegin(this);
         }
     }
 
@@ -753,20 +751,20 @@ public class PtrFrameLayout extends ViewGroup {
     private boolean tryToNotifyReset() {
         if ((mStatus == PTR_STATUS_COMPLETE || mStatus == PTR_STATUS_PREPARE) ) {
             if(mPtrIndicator.isInStartPosition()){
-                if (mPtrUIHandlerHolder.hasHandler()) {
-                    mPtrUIHandlerHolder.onUIReset(this);
+                if (mPtrUIHeaderHandlerHolder.hasHandler()) {
+                    mPtrUIHeaderHandlerHolder.onUIReset(this);
                     if (DEBUG) {
-                        PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIReset");
+                        PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIReset");
                     }
                 }
                 mStatus = PTR_STATUS_INIT;
                 clearFlag();
 
             }else if(mPtrIndicator.isInBottomPosition()) {//判断是否到底尾部《有毛病》
-                if (mPtrUIHandlerHolder2.hasHandler()) {
-                    mPtrUIHandlerHolder2.onUIReset(this);
+                if (mPtrUIFooterHandlerHolder.hasHandler()) {
+                    mPtrUIFooterHandlerHolder.onUIReset(this);
                     if (DEBUG) {
-                        PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIReset");
+                        PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIReset");
                     }
                 }
                 mStatus = PTR_STATUS_INIT;
@@ -902,11 +900,11 @@ public class PtrFrameLayout extends ViewGroup {
             mRefreshCompleteHook.takeOver();
             return;
         }
-        if (mPtrUIHandlerHolder.hasHandler()) {
+        if (mPtrUIHeaderHandlerHolder.hasHandler()) {
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshComplete");
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshComplete");
             }
-            mPtrUIHandlerHolder.onUIRefreshComplete(this);
+            mPtrUIHeaderHandlerHolder.onUIRefreshComplete(this);
         }
         mPtrIndicator.onUIRefreshComplete();
         tryScrollBackToTopAfterComplete();
@@ -923,11 +921,11 @@ public class PtrFrameLayout extends ViewGroup {
             mLoadCompleteHook.takeOver();
             return;
         }
-        if (mPtrUIHandlerHolder2.hasHandler()) {
+        if (mPtrUIFooterHandlerHolder.hasHandler()) {
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshComplete");
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshComplete");
             }
-            mPtrUIHandlerHolder2.onUIRefreshComplete(this);
+            mPtrUIFooterHandlerHolder.onUIRefreshComplete(this);
         }
         mPtrIndicator.onUIRefreshComplete();
         tryScrollBackToBottomAfterComplete();
@@ -950,10 +948,10 @@ public class PtrFrameLayout extends ViewGroup {
         if (mStatus != PTR_STATUS_INIT) return;
         mFlag |= atOnce ? FLAG_AUTO_REFRESH_AT_ONCE : FLAG_AUTO_REFRESH_BUT_LATER;
         mStatus = PTR_STATUS_PREPARE;
-        if (mPtrUIHandlerHolder.hasHandler()) {
-            mPtrUIHandlerHolder.onUIRefreshPrepare(this);
+        if (mPtrUIHeaderHandlerHolder.hasHandler()) {
+            mPtrUIHeaderHandlerHolder.onUIRefreshPrepare(this);
             if (DEBUG) {
-                PtrCLog.i(LOG_TAG, "PtrUIHandler: onUIRefreshPrepare, mFlag %s", mFlag);
+                PtrCLog.i(LOG_TAG, "PtrUIHeaderHandler: onUIRefreshPrepare, mFlag %s", mFlag);
             }
         }
         mScrollChecker.tryToScrollTo(mPtrIndicator.getOffsetToRefresh(), duration,false);
@@ -1038,26 +1036,30 @@ public class PtrFrameLayout extends ViewGroup {
         return mContent;
     }
 
-    public void setPtrHandler(PtrHandler ptrHandler) {
-        mPtrHandler = ptrHandler;
+    public void setPtrRefreshHandler(PtrRefreshHandler ptrRefreshHandler) {
+        mPtrRefreshHandler = ptrRefreshHandler;
     }
 
-    public void setPtrHandler2(PtrHandler2 ptrHandler2) {
-        mPtrHandler2 = ptrHandler2;
+    public void setPtrLoadHandler(PtrLoadHandler ptrLoadHandler) {
+        mPtrLoadHandler = ptrLoadHandler;
     }
 
-    public void addPtrUIHandler(PtrUIHandler ptrUIHandler) {
-        PtrUIHandlerHolder.addHandler(mPtrUIHandlerHolder, ptrUIHandler);
+    public void addPtrUIHeaderHandler(PtrUIHeaderHandler ptrUIHeaderHandler) {
+        PtrUIHeaderHandlerHolder.addHandler(mPtrUIHeaderHandlerHolder, ptrUIHeaderHandler);
     }
 
-    public void addPtrUIHandler2(PtrUIHandler2 ptrUIHandler2) {
-        PtrUIHandlerHolder2.addHandler(mPtrUIHandlerHolder2, ptrUIHandler2);
+    public void addPtrUIFooterHandler(PtrUIFooterHandler ptrUIFooterHandler) {
+        PtrUIFooterHandlerHolder.addHandler(mPtrUIFooterHandlerHolder, ptrUIFooterHandler);
     }
 
 
     @SuppressWarnings({"unused"})
-    public void removePtrUIHandler(PtrUIHandler ptrUIHandler) {
-        mPtrUIHandlerHolder = PtrUIHandlerHolder.removeHandler(mPtrUIHandlerHolder, ptrUIHandler);
+    public void removePtrUIHeaderHandler(PtrUIHeaderHandler ptrUIHeaderHandler) {
+        mPtrUIHeaderHandlerHolder = PtrUIHeaderHandlerHolder.removeHandler(mPtrUIHeaderHandlerHolder, ptrUIHeaderHandler);
+    }
+
+    public void removePtrUIFooterHandler(PtrUIFooterHandler ptrUIFooterHandler) {
+        mPtrUIFooterHandlerHolder = PtrUIFooterHandlerHolder.removeHandler(mPtrUIFooterHandlerHolder, ptrUIFooterHandler);
     }
 
     public void setPtrIndicator(PtrIndicator slider) {

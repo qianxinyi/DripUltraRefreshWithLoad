@@ -3,7 +3,7 @@ package in.srain.cube.views.ptr;
 import android.view.View;
 import android.widget.AbsListView;
 //有待完善
-public abstract class PtrDefaultHandler implements PtrHandler,PtrHandler2{
+public abstract class PtrDefaultRefreshLoadHandler implements PtrRefreshHandler,PtrLoadHandler {
 
     public static boolean canChildScrollUp(View view) {
         if (android.os.Build.VERSION.SDK_INT < 14) {

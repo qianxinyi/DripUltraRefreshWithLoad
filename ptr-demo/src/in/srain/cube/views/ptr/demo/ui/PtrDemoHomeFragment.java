@@ -221,11 +221,11 @@ public class PtrDemoHomeFragment extends BlockMenuFragment {
 //
 //        ptrFrameLayout.setDurationToCloseHeader(1500);
 //        ptrFrameLayout.setHeaderView(header);
-//        ptrFrameLayout.addPtrUIHandler(header);
-//        ptrFrameLayout.setPtrHandler(new PtrHandler() {
+//        ptrFrameLayout.addPtrUIHeaderHandler(header);
+//        ptrFrameLayout.setPtrRefreshHandler(new PtrRefreshHandler() {
 //            @Override
 //            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-//                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+//                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledDown(frame, content, header);
 //            }
 //
 //            @Override

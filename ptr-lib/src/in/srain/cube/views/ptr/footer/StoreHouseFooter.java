@@ -12,13 +12,13 @@ import android.view.animation.Transformation;
 import java.util.ArrayList;
 
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrUIHandler2;
+import in.srain.cube.views.ptr.PtrUIFooterHandler;
 import in.srain.cube.views.ptr.header.StoreHouseBarItem;
 import in.srain.cube.views.ptr.header.StoreHousePath;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 import in.srain.cube.views.ptr.util.PtrLocalDisplay;
 
-public class StoreHouseFooter extends View implements PtrUIHandler2 {
+public class StoreHouseFooter extends View implements PtrUIFooterHandler {
 
     public ArrayList<StoreHouseBarItem> mItemList = new ArrayList<StoreHouseBarItem>();
 

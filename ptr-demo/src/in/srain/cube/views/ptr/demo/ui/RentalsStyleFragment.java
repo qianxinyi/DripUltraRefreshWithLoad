@@ -17,7 +17,7 @@ import in.srain.cube.image.iface.ImageLoadHandler;
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.util.LocalDisplay;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.ui.header.RentalsSunHeaderView;
 
@@ -54,7 +54,7 @@ public class RentalsStyleFragment extends TitleBaseFragment {
         frame.setLoadingMinTime(1000);
         frame.setDurationToCloseHeader(1500);
         frame.setHeaderView(header);
-        frame.addPtrUIHandler(header);
+        frame.addPtrUIHeaderHandler(header);
         // frame.setPullToRefresh(true);
         frame.postDelayed(new Runnable() {
             @Override
@@ -63,7 +63,7 @@ public class RentalsStyleFragment extends TitleBaseFragment {
             }
         }, 100);
 
-        frame.setPtrHandler(new PtrHandler() {
+        frame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
                 return true;

@@ -1,24 +1,16 @@
 package in.srain.cube.views.ptr;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.TypedArray;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
-public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIHandler2 {
+public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooterHandler {
     private TextView footerTitle;
     private ProgressBar footerProgressBar;
 

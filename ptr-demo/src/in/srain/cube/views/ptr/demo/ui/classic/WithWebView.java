@@ -10,10 +10,10 @@ import android.widget.Toast;
 
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.PtrHandler2;
+import in.srain.cube.views.ptr.PtrLoadHandler;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
 import in.srain.cube.views.ptr.demo.R;
 
 public class WithWebView extends TitleBaseFragment {
@@ -36,10 +36,10 @@ public class WithWebView extends TitleBaseFragment {
         });
         mPtrFrame = (PtrClassicFrameLayout) contentView.findViewById(R.id.rotate_header_web_view_frame);
         mPtrFrame.setLastUpdateTimeRelateObject(this);
-        mPtrFrame.setPtrHandler(new PtrHandler() {
+        mPtrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                return PtrDefaultHandler.checkContentCanBePulledDown(frame, mWebView, header);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledDown(frame, mWebView, header);
             }
 
             @Override
@@ -48,10 +48,10 @@ public class WithWebView extends TitleBaseFragment {
             }
         });
 
-        mPtrFrame.setPtrHandler2(new PtrHandler2() {
+        mPtrFrame.setPtrLoadHandler(new PtrLoadHandler() {
             @Override
             public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
-                return PtrDefaultHandler.checkContentCanBePulledUp(frame,mWebView,footer);
+                return PtrDefaultRefreshLoadHandler.checkContentCanBePulledUp(frame,mWebView,footer);
             }
 
             @Override

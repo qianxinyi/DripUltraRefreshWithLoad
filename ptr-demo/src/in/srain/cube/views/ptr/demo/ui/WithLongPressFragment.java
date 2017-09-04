@@ -13,7 +13,7 @@ import in.srain.cube.image.ImageLoaderFactory;
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.list.ListViewDataAdapter;
 import in.srain.cube.views.list.ViewHolderBase;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.demo.image.Images;
@@ -47,7 +47,7 @@ public class WithLongPressFragment extends TitleBaseFragment {
         final ListViewDataAdapter<String> listViewDataAdapter = new ListViewDataAdapter<String>();
         listViewDataAdapter.setViewHolderClass(this, ViewHolder.class);
 
-        ptrFrameLayout.setPtrHandler(new PtrDefaultHandler() {
+        ptrFrameLayout.setPtrRefreshHandler(new PtrDefaultRefreshLoadHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
                 ptrFrameLayout.postDelayed(new Runnable() {

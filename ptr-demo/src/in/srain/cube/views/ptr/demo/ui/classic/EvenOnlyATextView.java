@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.demo.R;
 
@@ -20,7 +20,7 @@ public class EvenOnlyATextView extends TitleBaseFragment {
 
         final PtrClassicFrameLayout ptrFrame = (PtrClassicFrameLayout) contentView.findViewById(R.id.fragment_rotate_header_with_text_view_frame);
         ptrFrame.setLastUpdateTimeRelateObject(this);
-        ptrFrame.setPtrHandler(new PtrDefaultHandler() {
+        ptrFrame.setPtrRefreshHandler(new PtrDefaultRefreshLoadHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
                 frame.postDelayed(new Runnable() {

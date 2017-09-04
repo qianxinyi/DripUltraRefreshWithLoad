@@ -10,8 +10,8 @@ import in.srain.cube.image.ImageLoaderFactory;
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.util.LocalDisplay;
 import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.PtrUIHandler;
+import in.srain.cube.views.ptr.PtrRefreshHandler;
+import in.srain.cube.views.ptr.PtrUIHeaderHandler;
 import in.srain.cube.views.ptr.demo.R;
 import in.srain.cube.views.ptr.header.StoreHouseHeader;
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
@@ -46,7 +46,7 @@ public class StoreHouseUsingString extends TitleBaseFragment {
         setHeaderTitle(mTitlePre + mStringList[0]);
 
         // for changing string
-        frame.addPtrUIHandler(new PtrUIHandler() {
+        frame.addPtrUIHeaderHandler(new PtrUIHeaderHandler() {
 
             private int mLoadTime = 0;
 
@@ -81,7 +81,7 @@ public class StoreHouseUsingString extends TitleBaseFragment {
 
         frame.setDurationToCloseHeader(3000);
         frame.setHeaderView(header);
-        frame.addPtrUIHandler(header);
+        frame.addPtrUIHeaderHandler(header);
         frame.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -89,7 +89,7 @@ public class StoreHouseUsingString extends TitleBaseFragment {
             }
         }, 100);
 
-        frame.setPtrHandler(new PtrHandler() {
+        frame.setPtrRefreshHandler(new PtrRefreshHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
                 return true;
