@@ -7,10 +7,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
-public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooter {
+public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooter{
     private TextView footerTitle;
     private ProgressBar footerProgressBar;
 
@@ -28,6 +29,7 @@ public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooter 
         super(context, attrs, defStyle);
         initViews(attrs);
     }
+
     protected void initViews(AttributeSet attrs) {
         View footer = LayoutInflater.from(getContext()).inflate(R.layout.cube_ptr_classic_default_footer, this);
         footerTitle = (TextView) footer.findViewById(R.id.ptr_classic_footer_title);
@@ -46,12 +48,12 @@ public class PtrClassicDefaultFooter extends FrameLayout implements PtrUIFooter 
 
     @Override
     public void onUIRefreshBegin(PtrFrameLayout frame) {
-               footerTitle.setText("我是开始阶段！！");
+        footerTitle.setText("我是加载阶段！！");
     }
 
     @Override
     public void onUIRefreshComplete(PtrFrameLayout frame) {
-            footerTitle.setText("我是完成阶段！！");
+        footerTitle.setText("我是完成阶段！！");
     }
 
     @Override

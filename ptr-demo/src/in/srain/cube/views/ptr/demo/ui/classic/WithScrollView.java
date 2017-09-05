@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
+import android.widget.Toast;
+
 import in.srain.cube.mints.base.TitleBaseFragment;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultRefreshLoadHandler;
@@ -51,6 +53,7 @@ public class WithScrollView extends TitleBaseFragment {
 
             @Override
             public void onLoadBegin(PtrFrameLayout frame) {
+                Toast.makeText(getContext(), "我真的被点击回调了吗？", Toast.LENGTH_SHORT).show();
                 mPtrFrame.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -59,7 +62,7 @@ public class WithScrollView extends TitleBaseFragment {
                 }, 100);
             }
         });
-
+        mPtrFrame.setClickToLoad(true);
         // the following are default settings
         mPtrFrame.setResistance(1.7f);
         mPtrFrame.setRatioOfHeight(1.2f);
@@ -73,7 +76,7 @@ public class WithScrollView extends TitleBaseFragment {
         mPtrFrame.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mPtrFrame.autoRefresh();
+                mPtrFrame.autoRefresh(false,100);
             }
         }, 100);
         return contentView;

@@ -83,7 +83,8 @@ public class WithListView extends TitleBaseFragment {
                 updateData2();
             }
         });
-        mPtrFrame.setEnabledNextPtrAtOnce(true);
+       // mPtrFrame.setEnabledNextPtrAtOnce(true);
+         mPtrFrame.setClickToLoad(true);
          //原生风格悬浮式刷新方式
         //mPtrFrame.setPinContent(true);
         // the following are default settings
@@ -98,9 +99,10 @@ public class WithListView extends TitleBaseFragment {
         mPtrFrame.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mPtrFrame.autoRefresh();
+                mPtrFrame.autoRefresh(false,1000);
             }
         }, 100);
+
         return contentView;
     }
 

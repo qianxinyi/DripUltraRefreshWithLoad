@@ -51,6 +51,8 @@ public class PtrFrameLayout extends ViewGroup {
     private boolean mPullToRefresh = false;//下拉刷新
     private boolean mPullToLoad=false;//上拉加载
 
+    private boolean mClickToLoad=false;//点击加载
+
     private View mHeaderView;
     protected View mContent;
     private View mFooterView;
@@ -106,13 +108,13 @@ public class PtrFrameLayout extends ViewGroup {
         initView(context,attrs);
     }
 
-    private void initView(Context context,AttributeSet attrs){
+    private void initView(Context context,AttributeSet attrs) {
         mPtrIndicator = new PtrIndicator();
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.PtrFrameLayout, 0, 0);
         if (arr != null) {
             mHeaderId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_header, mHeaderId);
             mContainerId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_content, mContainerId);
-            mFooterId=arr.getResourceId(R.styleable.PtrFrameLayout_ptr_footer,mFooterId);
+            mFooterId = arr.getResourceId(R.styleable.PtrFrameLayout_ptr_footer, mFooterId);
             mPtrIndicator.setResistance(arr.getFloat(R.styleable.PtrFrameLayout_ptr_resistance, mPtrIndicator.getResistance()));
             mDurationToClose = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close, mDurationToClose);
             mDurationToCloseHeader = arr.getInt(R.styleable.PtrFrameLayout_ptr_duration_to_close_header, mDurationToCloseHeader);
@@ -127,7 +129,6 @@ public class PtrFrameLayout extends ViewGroup {
         mScrollChecker = new ScrollChecker();
         final ViewConfiguration conf = ViewConfiguration.get(getContext());
         mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
-
     }
     @Override
     protected void onFinishInflate() {
@@ -187,8 +188,25 @@ public class PtrFrameLayout extends ViewGroup {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(mHeaderView==null)
+        if (mHeaderView == null)
             onFinishInflate();
+        //点击加载事件
+        if (mClickToLoad) {
+            mFooterView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mStatus = PTR_STATUS_LOADING;
+                    performLoad();
+                    mFooterView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            performClickLoad();
+                            mScrollChecker.tryToScrollTo(0, mDurationToClose, true);
+                        }
+                    }, 1000);
+                }
+            });
+        }
     }
     @Override
     protected void onDetachedFromWindow() {
@@ -196,7 +214,6 @@ public class PtrFrameLayout extends ViewGroup {
         if (mScrollChecker != null) {
             mScrollChecker.destroy();
         }
-
         if (mPerformRefreshCompleteDelay != null) {
             removeCallbacks(mPerformRefreshCompleteDelay);
         }
@@ -334,7 +351,6 @@ public class PtrFrameLayout extends ViewGroup {
                 } else {
                     return dispatchTouchEventSupper(e);
                 }
-
             case MotionEvent.ACTION_DOWN:
                 mHasSendCancelEvent = false;
                 mPtrIndicator.onPressDown(e.getX(), e.getY());
@@ -351,7 +367,8 @@ public class PtrFrameLayout extends ViewGroup {
                 mPtrIndicator.onMove(e.getX(), e.getY());
                 float offsetX = mPtrIndicator.getOffsetX();
                 float offsetY = mPtrIndicator.getOffsetY();
-                if (mDisableWhenHorizontalMove && !mPreventForHorizontal && (Math.abs(offsetX) > mPagingTouchSlop && Math.abs(offsetX) > Math.abs(offsetY))) {
+                //mDisableWhenHorizontalMove && !mPreventForHorizontal && (Math.abs(offsetX) > mPagingTouchSlop && Math.abs(offsetX) > Math.abs(offsetY))
+                if (mDisableWhenHorizontalMove && !mPreventForHorizontal && Math.abs(offsetX) > Math.abs(offsetY)) {
                     if (mPtrIndicator.isInStartPosition()) {
                         mPreventForHorizontal = true;
                     }
@@ -377,7 +394,7 @@ public class PtrFrameLayout extends ViewGroup {
                         return true;
                     }
                 }
-                if (PtrIndicator.isPullHeader || (moveDown && mPtrRefreshHandler != null && !PtrIndicator.isPullFooter)) {
+                if (PtrIndicator.isPullHeader || (moveDown && mPtrRefreshHandler != null && (mClickToLoad||!PtrIndicator.isPullFooter))) {
                     PtrIndicator.isPullHeader = true;//分辨正在拉头部或者尾部
                     PtrIndicator.isPullFooter = false;
                     // disable move when header not reach top
@@ -397,7 +414,7 @@ public class PtrFrameLayout extends ViewGroup {
 
     /**
      * if deltaY < 0, move the content up
-     * //关于FooterView ，HeaderView的处理
+     * //关于HeaderView的处理
      *
      * @param deltaY
      */
@@ -410,13 +427,16 @@ public class PtrFrameLayout extends ViewGroup {
             return;
         }
         int to = mPtrIndicator.getCurrentPosY()+(int) deltaY;
-        if(-to>3*mFooterHeight)    return;    // // TODO: 2017/9/1  限制最大移动高度
+        if(-to>3*mFooterHeight)  return;    // // TODO: 2017/9/1  限制最大移动高度
         // over bottom
         if (mPtrIndicator.willOverBottom(to)) {
             if (DEBUG) {
                 PtrCLog.e(LOG_TAG, String.format("over bottom"));
             }
             to = PtrIndicator.POS_START;
+        }
+        if(Math.abs(to)>=mFooterHeight&&mClickToLoad){//点击加载情况
+           to=-mFooterHeight;
         }
         mPtrIndicator.setCurrentPos(to);
         int change = to - mPtrIndicator.getLastPosY();
@@ -430,10 +450,20 @@ public class PtrFrameLayout extends ViewGroup {
             mHasSendCancelEvent = true;
             sendCancelEvent();
         }
+         //点击加载判断
+        if(mPtrIndicator.getCurrentPosY()<=-mFooterHeight&&mClickToLoad){  //// TODO: 2017/9/5 点击加载判断
+            mFooterView.offsetTopAndBottom(change);
+            if (!isPinContent()) {
+                mContent.offsetTopAndBottom(change);
+            }
+            invalidate();
+            return;
+        }
 
         // leave initiated position or just refresh complete  刚刚离开，UI进行准备显示阶段
         if ((mPtrIndicator.hasJustLeftBottomPosition()&& mStatus == PTR_STATUS_INIT) ||
-                (mPtrIndicator.goUpCrossFinishPosition()&& mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())) {
+                (mPtrIndicator.goUpCrossFinishPosition()&& mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce())||
+                (mStatus == PTR_STATUS_COMPLETE && isEnabledNextPtrAtOnce()&&mClickToLoad)) {
             mStatus = PTR_STATUS_PREPARE;
             mPtrUIFooterHolder.onUIRefreshPrepare(this);
             if (DEBUG) {
@@ -452,7 +482,7 @@ public class PtrFrameLayout extends ViewGroup {
         }
 
         // Pull to Refresh<pull to load>
-        if (mStatus == PTR_STATUS_PREPARE) {
+        if (mStatus == PTR_STATUS_PREPARE&&!mClickToLoad) {
             // reach fresh height while moving from top to bottom
             if (isUnderTouch && !isAutoRefresh() && mPullToLoad && mPtrIndicator.crossLoadLineFromTopToBottom()) {
                 tryToPerformLoad();
@@ -610,6 +640,12 @@ public class PtrFrameLayout extends ViewGroup {
             if (mStatus == PTR_STATUS_COMPLETE) {
                 notifyUILoadComplete(false);
             } else {
+                if(mPtrIndicator.getCurrentPosY()==-mFooterHeight&&mClickToLoad){
+                    PtrIndicator.isPullHeader=false;
+                    if(mPtrIndicator.isInBottomPosition())
+                       PtrIndicator.isPullFooter=false;
+                    return;
+                }
                 tryScrollBackToBottomAbortLoad();
             }
         }
@@ -690,7 +726,6 @@ public class PtrFrameLayout extends ViewGroup {
         tryScrollBackToBottom();
     }
 
-
     private boolean tryToPerformRefresh() {
         if (mStatus != PTR_STATUS_PREPARE) {
             return false;
@@ -703,7 +738,7 @@ public class PtrFrameLayout extends ViewGroup {
         return false;
     }
     private boolean tryToPerformLoad() {
-        if (mStatus != PTR_STATUS_PREPARE) {
+        if (mStatus != PTR_STATUS_PREPARE||mClickToLoad) {
             return false;
         }
 
@@ -740,6 +775,11 @@ public class PtrFrameLayout extends ViewGroup {
                 PtrCLog.i(LOG_TAG, "PtrUIHeader: onUIRefreshBegin");
             }
         }
+        if (mPtrLoadHandler != null&&!mClickToLoad) {
+            mPtrLoadHandler.onLoadBegin(this);
+        }
+    }
+    private void performClickLoad(){
         if (mPtrLoadHandler != null) {
             mPtrLoadHandler.onLoadBegin(this);
         }
@@ -775,7 +815,7 @@ public class PtrFrameLayout extends ViewGroup {
         }
         return false;
     }
-    protected void onPtrScrollAbort() {
+    protected void  onPtrScrollAbort() {
         if (mPtrIndicator.hasLeftStartPosition() && isAutoRefresh()) {
             if (DEBUG) {
                 PtrCLog.d(LOG_TAG, "call onRelease after scroll abort");
@@ -785,7 +825,7 @@ public class PtrFrameLayout extends ViewGroup {
 
 
     }
-    protected void onPtrScrollFinish() {
+    protected void  onPtrScrollFinish() {
         if (mPtrIndicator.hasLeftStartPosition() && isAutoRefresh()) {
             if (DEBUG) {
                 PtrCLog.d(LOG_TAG, "call onRelease after scroll finish");
@@ -830,6 +870,7 @@ public class PtrFrameLayout extends ViewGroup {
         }
     }
     final public void loadComplete() {
+        //if(mClickToLoad) return;
         if (DEBUG) {
             PtrCLog.i(LOG_TAG, "refreshComplete");
         }
@@ -928,7 +969,7 @@ public class PtrFrameLayout extends ViewGroup {
             mPtrUIFooterHolder.onUIRefreshComplete(this);
         }
         mPtrIndicator.onUIRefreshComplete();
-        tryScrollBackToBottomAfterComplete();
+        tryScrollBackToBottomAfterComplete();//// TODO: 2017/9/4 进行加载更多展示
         tryToNotifyReset();
     }
 
@@ -1036,6 +1077,20 @@ public class PtrFrameLayout extends ViewGroup {
         return mContent;
     }
 
+    /**
+     * 向外提供默认的统一接口实现上拉下拉刷新
+     * 
+     */
+    //// TODO: 2017/9/4 有待重新写提供统一接口
+    public void setPtrDefaultHandler() {
+           
+
+    }
+
+    /**
+     * 自我设定检测以及更新数据接口
+     * @param ptrRefreshHandler
+     */
     public void setPtrRefreshHandler(PtrRefreshHandler ptrRefreshHandler) {
         mPtrRefreshHandler = ptrRefreshHandler;
     }
@@ -1159,6 +1214,13 @@ public class PtrFrameLayout extends ViewGroup {
     public boolean isPullToLoad() {return mPullToLoad;}
     public void setPullToLoad(boolean pullToLoad) {mPullToLoad = pullToLoad;}
 
+    public  boolean isClickToLoad(){
+        return mClickToLoad;
+    }
+    public void setClickToLoad(boolean clickToLoad){
+           this.mClickToLoad=clickToLoad;
+           setEnabledNextPtrAtOnce(true);//为了频繁刷新。
+    }
     @SuppressWarnings({"unused"})
     public View getHeaderView() {
         return mHeaderView;
@@ -1340,4 +1402,14 @@ public class PtrFrameLayout extends ViewGroup {
             mIsRunning = true;
         }
     }
+
+
+
+
+
+
+
+
+
+
 }
