@@ -1,0 +1,85 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {
+            keyAlias 'android.keystore'
+            keyPassword 'dripiflytek'
+            storeFile file('android.keystore')
+            storePassword 'dripiflytek'
+        }
+        debug {
+            keyAlias 'android.keystore'
+            keyPassword 'dripiflytek'
+            storeFile file('android.keystore')
+            storePassword 'dripiflytek'
+        }
+    }
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        applicationId "in.srain.cube.views.ptr.demo"
+        minSdkVersion 8
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        versionCode project.hasProperty("verCode") ? Integer.parseInt(verCode) : 0
+        versionName project.hasProperty("verName") ? verName : "0.0"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['resources']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            // aidl.srcDirs = ['src']
+            // renderscript.srcDirs = ['src']
+        }
+
+        androidTest.setRoot('tests')
+    }
+    dexOptions {
+        preDexLibraries = false
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            debuggable true
+            // signingConfig signingConfigs.debug
+        }
+        Demo {
+            minifyEnabled false
+            debuggable false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    def verFullName = defaultConfig.versionName + "." + defaultConfig.versionCode;
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null &&
+                    (outputFile.name.endsWith('-Demo-unsigned.apk')
+                            ||outputFile.name.endsWith('-Demo.apk'))) {
+                output.outputFile = new File(outputFile.parentFile.parent+"/libs", outputFile.name.replace(outputFile.name, "DripUltraRefreshWithLoad-" + verFullName + ".apk"));
+                outputFile.delete()
+            }
+        }
+    }
+
+    buildToolsVersion '25.0.0'
+}
+
+dependencies {
+    compile 'in.srain.cube:cube-sdk:1.0.44.39-SNAPSHOT@aar'
+    compile project(':ptr-lib')
+    compile 'in.srain.cube:clog:1.0.2'
+    compile 'com.android.support:recyclerview-v7:23.0.+'
+}
