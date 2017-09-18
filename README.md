@@ -8,9 +8,11 @@
 			maven { url 'https://jitpack.io' }
 		}
 	}
-    
-    	dependencies {
-	        compile 'com.github.qianxinyi:android-Ultra-Pull-To-Refresh-Load:v1.0'
+   
+   dependencies {
+            	        compile 'com.github.qianxinyi:DripUltraRefreshWithLoad:v3.0'
+            	}
+
 	}
 
 ************************************************************************************************
