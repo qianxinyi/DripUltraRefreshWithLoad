@@ -10,7 +10,7 @@
 	}
    
    dependencies {
-            	        compile 'com.github.qianxinyi:DripUltraRefreshWithLoad:v3.0'
+            	        compile 'com.github.qianxinyi:DripUltraRefreshWithLoad:v4.0'
             	}
 
 	}
