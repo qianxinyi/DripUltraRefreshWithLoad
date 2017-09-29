@@ -2,18 +2,17 @@
 
 以下封装好的上拉下拉加载框架：添加gradle依赖方式
 ***********************************************************************************************
-	allprojects {
-		repositories {
+      allprojects {
+	    repositories {
 			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
    
-   dependencies {
+       dependencies {
             	        compile 'com.github.qianxinyi:DripUltraRefreshWithLoad:v4.0'
-            	}
+            	     }
 
-	}
 
 ************************************************************************************************
 
@@ -31,7 +30,7 @@ It's well designed, you can customize the UI effect you want as easy as adding a
 
 Support `API LEVEL >= 8`, all snapshots are taken from Genymotion, 2.3.7.
 
-[Download APK](https://raw.githubusercontent.com/liaohuqiu/android-Ultra-Pull-To-Refresh/master/ptr-demo.apk)
+[Download APK]
 
 * StoreHouse Style first! Thanks to [CBStoreHouseRefreshControl](https://github.com/coolbeet/CBStoreHouseRefreshControl).
     <div class='row'>
