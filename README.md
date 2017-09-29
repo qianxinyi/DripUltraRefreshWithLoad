@@ -275,7 +275,7 @@ public interface PtrHandler {
 An example:
 
 ```java
-ptrFrame.setPtrHandler(new PtrHandler() {
+ptrFrame.setPtrRefreshHandler(new PtrRefreshHandler() {
     @Override
     public void onRefreshBegin(PtrFrameLayout frame) {
         frame.postDelayed(new Runnable() {
@@ -289,6 +289,25 @@ ptrFrame.setPtrHandler(new PtrHandler() {
     @Override
     public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
         return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+    }
+});
+```
+
+```java
+ptrFrame.setPtrLoadHandler(new PtrLoadHandler() {
+    @Override
+    public void onLoadBegin(PtrFrameLayout frame) {
+        frame.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ptrFrame.loadComplete();
+            }
+        }, 1800);
+    }
+
+    @Override
+    public boolean checkCanDoLoad(PtrFrameLayout frame, View content, View footer) {
+        return PtrDefaultHandler.checkContentCanBePulledUp(frame, content, footer);
     }
 });
 ```
@@ -337,17 +356,4 @@ public interface PtrUIHandler {
 
 # Contact & Help
 
-Please fell free to contact me if there is any problem when using the library.
 
-* srain@php.net
-* twitter: https://twitter.com/liaohuqiu
-* weibo: http://weibo.com/liaohuqiu
-* blog: http://www.liaohuqiu.net
-
-    1. About how to use cube-sdk / Ultra Ptr: 271918140 (cube-sdk)
-
-        This the rule for our tribes, please read it before you request to join: https://github.com/liaohuqiu/qq-tribe-rule
-
-    2. For those who like thinking independently and are good at solving problem independently. Please join us, we are all here on Slack: 
-    
-        http://join-add1bit.liaohuqiu.net/
