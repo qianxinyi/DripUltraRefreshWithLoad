@@ -1,4 +1,4 @@
-###### Welcome to follow me on GitHub or Twitter
+###### Welcome to follow me on GitHub 
 
 以下封装好的上拉下拉加载框架：添加gradle依赖方式
 ***********************************************************************************************
@@ -18,20 +18,10 @@
 ************************************************************************************************
 
 
-GitHub: https://github.com/liaohuqiu
-
-Twitter: https://twitter.com/liaohuqiu
+GitHub: https://github.com/qianxinyi
 
 ---
-
-[![Build Status](https://travis-ci.org/liaohuqiu/android-Ultra-Pull-To-Refresh.svg?branch=master)](https://travis-ci.org/liaohuqiu/android-Ultra-Pull-To-Refresh)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Ultra%20Pull%20To%20Refresh-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1180)
-
-#### [中文版文档](https://github.com/liaohuqiu/android-Ultra-Pull-To-Refresh/blob/master/README-cn.md)
-
-Wanna auto-load-more? This will be what you want: https://github.com/liaohuqiu/android-cube-app
-
-# Ultra Pull To Refresh
+# Drip Ultra Refresh With Load
 
 It's a replacement for the deprecated pull to refresh solution. It can contain any view you want.
 
